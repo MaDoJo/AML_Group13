@@ -8,15 +8,19 @@ def visualize_data_point(data_point: np.ndarray):
 
     max_rows, n_dimensions = data_point.shape
 
+    # last index of non-padded row
+    last_row = np.nonzero(data_point)[0][-1] + 1
+
     # Create the x-axis (row indices)
-    x_axis = np.arange(max_rows)
+    x_axis = np.arange(last_row)
 
     plt.figure(figsize=(12, 6))
 
     # Plot each of the 12 columns/dimensions as a separate line
-    for i in range(n_dimensions):
-        plt.plot(x_axis, data_point[:, i], label=f'Channel {i+1}')
+    for channel in range(n_dimensions):
+        plt.plot(x_axis, data_point[:last_row, channel], label=f'Channel {channel+1}')
 
+    plt.xlim(0, max_rows)
     plt.title('Time Series Plot of a Recording', fontsize=14)
     plt.xlabel('Time Step', fontsize=12)
     plt.legend(loc='upper right', ncol=4, fontsize='small')
