@@ -26,4 +26,15 @@ def visualize_data_point(data_point: np.ndarray):
     plt.legend(loc='upper right', ncol=4, fontsize='small')
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.tight_layout()
-    plt.savefig('single_data_point_plot.png')
+
+
+def visualize_data_lengths(data_lengths):
+    x_axis = np.arange(len(data_lengths))
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(x_axis, data_lengths)
+    plt.title('Number of Data Points at each Time Step', fontsize=14)
+    plt.xlabel('Time Step', fontsize=12)
+    plt.ylabel('Number of data points', fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
