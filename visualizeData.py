@@ -2,6 +2,7 @@ from processing import get_pattern_mean
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 def visualize_data_point(data_point: np.ndarray):
     if data_point.shape[1] != 12:
@@ -105,5 +106,19 @@ def visualize_data_lengths(data_lengths):
     plt.title('Number of Data Points at each Time Step', fontsize=14)
     plt.xlabel('Time Step', fontsize=12)
     plt.ylabel('Number of data points', fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+
+
+def visualize_PC_variance(singular_values, log=False):
+    x_axis = np.arange(len(singular_values))
+
+    title = ("Log 10 " if log else "") + "Principal Component Variances"
+    if log:
+        singular_values = [math.log10(value) for value in singular_values]
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(x_axis, singular_values)
+    plt.title(title, fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.tight_layout()
