@@ -84,7 +84,7 @@ class DecisionTree(nn.Module):
             right=right_child,
         )
 
-    def train(self, X: Tensor, y: Tensor) -> None:
+    def train_tree(self, X: Tensor, y: Tensor) -> None:
         """
         Train a decision tree.
 

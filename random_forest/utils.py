@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import torch
 from torch import Tensor
@@ -147,3 +147,24 @@ def find_best_split(
             best_feature_idx = feature_idx.item()
 
     return best_feature_idx, best_threshold, best_gain
+
+def bootstrap_sample(X: Tensor, y: Optional[Tensor] = None) -> Tuple[Tensor, Optional[Tensor]]:
+    """
+    Return a bootstrap sample of X (and y if provided).
+
+    Args:
+        X (Tensor): Data containing features.
+        y (Optional[Tensor]): Label data.
+
+    Returns:
+        (Tuple[Tensor, Optional[Tensor]]):
+            - Sample from X
+            - Sample from y (if provided)
+    """
+    n_samples = X.shape[0]
+    indices = torch.randint(0, n_samples, (n_samples,))
+    X_sample = X[indices]
+
+    y_sample = y[indices] if y is not None else None
+
+    return X_sample, y_sample
