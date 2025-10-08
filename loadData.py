@@ -1,11 +1,16 @@
 import numpy as np
 import os
 
-def load_data(file_path: str, num_data_points: int, max_length: int, padding_value: float=0.0):
+TRAIN_DATA_POINTS = 270
+TEST_DATA_POINTS = 370
+N_CLASSES = 9
+MAX_LENGTH = 29
+
+def load_data(file_path: str, num_data_points: int, padding_value: float=0.0):
     """
     Loads the data from the ae.train file, splits it into num_data_points individual data points 
-    (sequences), pads them to the maximum sequence length (max_length), and returns 
-    a 3D NumPy array of shape (num_data_points, max_length, 12).
+    (sequences), pads them to the maximum sequence length (MAX_LENGTH), and returns 
+    a 3D NumPy array of shape (num_data_points, MAX_LENGTH, 12).
 
     Args:
         file_path (str): The path to the ae.train file.
@@ -13,7 +18,7 @@ def load_data(file_path: str, num_data_points: int, max_length: int, padding_val
         padding_value (float): The value used to pad shorter sequences (typically 0.0 or np.nan).
 
     Returns:
-        numpy.ndarray: A NumPy array of shape (num_data_points, max_length, 12).
+        numpy.ndarray: A NumPy array of shape (num_data_points, MAX_LENGTH, 12).
     """
     
     if not os.path.exists(file_path):
@@ -47,12 +52,12 @@ def load_data(file_path: str, num_data_points: int, max_length: int, padding_val
              print(f"Error: Number of extracted data points ({len(data_points)}) does not match expected ({num_data_points}).")
              return None
 
-        print(f"Maximum number of rows of all datapoints: {max_length}")
+        print(f"Maximum number of rows of all datapoints: {MAX_LENGTH}")
 
         # 5. Pad and Collect
         padded_data_points = []
         for arr in data_points:
-            n_rows_to_pad = max_length - arr.shape[0]
+            n_rows_to_pad = MAX_LENGTH - arr.shape[0]
             
             # Create a padding array of the required size
             padding = np.full((n_rows_to_pad, N_DIMENSIONS), padding_value, dtype=arr.dtype)
@@ -81,7 +86,7 @@ if __name__ == "__main__":
         print("\nShape of the final array:", data_numpy_array.shape)
         
         # Example: Print the shape of the first data point (sequence 0)
-        print("Shape of the first data point (should be (max_length, 12)):", data_numpy_array[0].shape)
+        print("Shape of the first data point (should be (29, 12)):", data_numpy_array[0].shape)
 
         # Example: Print the first few rows of the first sequence
         print("\nFirst 5 rows of the first sequence:")
