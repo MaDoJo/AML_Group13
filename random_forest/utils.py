@@ -148,6 +148,18 @@ def find_best_split(
 
     return best_feature_idx, best_threshold, best_gain
 
+def get_majority_class(y: Tensor) -> int:
+    """
+    Get majority class in y.
+    
+    Args:
+        y (Tensor): Data containing the class labels.
+    
+    Returns
+        (int): Majority class label.
+    """
+    return int(y.mode().values.item())
+
 def bootstrap_sample(X: Tensor, y: Optional[Tensor] = None) -> Tuple[Tensor, Optional[Tensor]]:
     """
     Return a bootstrap sample of X (and y if provided).

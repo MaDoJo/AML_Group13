@@ -58,11 +58,11 @@ class DecisionTree(nn.Module):
         Returns
             (TreeNode): Tree node fit to the data.
         """
-        if len(y.unique()) == 1:  # Leaf if all labels the same
-            return self.TreeNode(value=y[0].item())
-    
-        if self.max_depth is not None and depth >= self.max_depth:  # If max_depth reached
-            return self.TreeNode(value=y[0].item())
+        if (
+            len(y.unique()) == 1 or  # Leaf if all labels the same
+            (self.max_depth is not None and depth >= self.max_depth) # If max_depth reached
+        ):
+            return self.TreeNode(value=utl.get_majority_class(y))
 
         num_features_data = X.shape[1]
         shuffled_feature_indices = torch.randperm(num_features_data)
