@@ -52,11 +52,11 @@ def split_data(
     return X[left_mask], y[left_mask], X[right_mask], y[right_mask]
 
 
-def compute_information_gain(
+def compute_split_gain(
     X: Tensor, y: Tensor, feature_idx: int, threshold: float
 ) -> Number:
     """
-    Compute information gain of a split.
+    Compute split gain of a split.
 
     Args:
         X (Tensor): Data containing the features.
@@ -65,7 +65,7 @@ def compute_information_gain(
         threshold (float): Threshold to split on.
 
     Returns:
-        (Number): Computed information gain.
+        (Number): Computed split gain.
     """
     parent_entropy = compute_entropy(y)
     N = len(y)
@@ -96,25 +96,25 @@ def find_best_feature_split(
     Returns:
         (Tuple[Number, Number]):
             - Best threshold
-            - Best information gain
+            - Best split gain
     """
     values, order = X[:, feature_idx].sort()
     y_sorted = y[order]
 
     best_threshold = None
-    best_info_gain = -float("inf")
+    best_split_gain = -float("inf")
     N = len(y)
 
     for i in range(1, N):
         if y_sorted[i] != y_sorted[i - 1]:
             threshold = ((values[i] + values[i - 1]) / 2).item()
 
-            info_gain = compute_information_gain(X, y, feature_idx, threshold=threshold)
-            if info_gain > best_info_gain:
-                best_info_gain = info_gain
+            split_gain = compute_split_gain(X, y, feature_idx, threshold=threshold)
+            if split_gain > best_split_gain:
+                best_split_gain = split_gain
                 best_threshold = threshold
 
-    return best_threshold, best_info_gain
+    return best_threshold, best_split_gain
 
 
 def find_best_split(
@@ -132,7 +132,7 @@ def find_best_split(
         (Tuple[int, Number, Number]):
             - Best feature index
             - Best threshold
-            - Best information gain
+            - Best split gain
     """
     best_gain = -float("inf")
     best_threshold = None
