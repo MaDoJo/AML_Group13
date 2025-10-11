@@ -86,7 +86,7 @@ def get_distance(distance_matrix: np.ndarray) -> float:
         idxs = []
         if idx[0] > 0:
             idxs.append((idx[0] - 1, idx[1]))
-            connections.append(connections, distance_matrix[idx[0] - 1, idx[1]])
+            connections.append(distance_matrix[idx[0] - 1, idx[1]])
         if idx[1] > 0:
             idxs.append((idx[0], idx[1] - 1))
             connections.append(distance_matrix[idx[0], idx[1] - 1])
