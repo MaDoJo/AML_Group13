@@ -166,22 +166,22 @@ def extract_features_for_random_forest(
     
     return X_train_tensor, y_train_tensor, X_test_tensor, y_test_tensor
 
-
-if __name__ == "__main__":
-    X_train, y_train, X_test, y_test = extract_features_for_random_forest(
-        train_data_path="ae.train",
-        test_data_path="ae.test",
-        variance_threshold=95.0
-    )
+# check to see if the feature extraction is working
+# if __name__ == "__main__":
+#     X_train, y_train, X_test, y_test = extract_features_for_random_forest(
+#         train_data_path="ae.train",
+#         test_data_path="ae.test",
+#         variance_threshold=95.0
+#     )
     
-    print(f"Training set: {X_train.shape[0]} samples, {X_train.shape[1]} features")
-    print(f"Test set: {X_test.shape[0]} samples, {X_test.shape[1]} features")
-    print(f"Classes: {len(torch.unique(y_train))}")
-    print("\nClass distribution (training):")
-    for class_idx in range(N_CLASSES):
-        count = (y_train == class_idx).sum().item()
-        print(f"  Class {class_idx}: {count} samples")
-    print("\nClass distribution (test):")
-    for class_idx in range(N_CLASSES):
-        count = (y_test == class_idx).sum().item()
-        print(f"  Class {class_idx}: {count} samples")
+#     print(f"Training set: {X_train.shape[0]} samples, {X_train.shape[1]} features")
+#     print(f"Test set: {X_test.shape[0]} samples, {X_test.shape[1]} features")
+#     print(f"Classes: {len(torch.unique(y_train))}")
+#     print("\nClass distribution (training):")
+#     for class_idx in range(N_CLASSES):
+#         count = (y_train == class_idx).sum().item()
+#         print(f"  Class {class_idx}: {count} samples")
+#     print("\nClass distribution (test):")
+#     for class_idx in range(N_CLASSES):
+#         count = (y_test == class_idx).sum().item()
+#         print(f"  Class {class_idx}: {count} samples")
