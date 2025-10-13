@@ -174,3 +174,27 @@ def visualize_PC_variance(singular_values: np.ndarray, log: bool=False) -> None:
     plt.title(title, fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.tight_layout()
+
+
+def show_search_results() -> None:
+    """
+    Visualizes the results of the hyperparameter search. Plots the accuracies of
+    1 through 10 nearest neighbors for two different local distance measures in
+    the Dynamic Time Warping (DTW) procedure. The local distance measures are the
+    absolute distance and the squared distance.
+    """
+
+    sqr_results = {1: 91.48148148148148, 2: 90.37037037037037, 3: 92.96296296296296, 4: 91.11111111111111, 5: 92.22222222222223, 6: 90.74074074074073, 7: 91.85185185185185, 8: 91.48148148148148, 9: 91.85185185185185, 10: 91.48148148148148}
+    abs_results = {1: 88.51851851851852, 2: 87.03703703703704, 3: 89.62962962962963, 4: 88.51851851851852, 5: 90.0, 6: 86.66666666666667, 7: 85.18518518518519, 8: 85.55555555555556, 9: 84.44444444444444, 10: 84.81481481481481}
+
+    plt.figure(figsize=(12, 6))
+
+    plt.plot(sqr_results.keys(), sqr_results.values(), label="d(x, y) = (x - y)^2")
+    plt.plot(abs_results.keys(), abs_results.values(), label="d(x, y) = abs(x - y)")
+
+    plt.title('Hyperparameter Search Results', fontsize=14)
+    plt.ylabel('Validation Accuracy', fontsize=12)
+    plt.xlabel('K-Nearest Neighbors', fontsize=12)
+    plt.legend(loc='upper right', ncol=4, fontsize='small')
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
