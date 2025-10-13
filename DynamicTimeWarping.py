@@ -40,9 +40,9 @@ def get_distance_matrix(signal1: np.ndarray, signal2: np.ndarray) -> np.ndarray:
     # loop over every entry in the distance-matrix
     for idx1 in range(distance_matrix.shape[0]):
         for idx2 in range(distance_matrix.shape[1]):
-            # local distance is the eucledian distance between one point in signal 1
+            # local distance is the squared distance between one point in signal 1
             # and one point in signal 2
-            local_distance = abs(signal1[idx1] - signal2[idx2])
+            local_distance = (signal1[idx1] - signal2[idx2]) ** 2
             
             # lowest connection is the smallest entry 1 row and/or column lower than
             # the current point
