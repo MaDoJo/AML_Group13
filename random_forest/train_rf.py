@@ -4,12 +4,11 @@ import torch
 import numpy as np
 from random_forest.random_forest import RandomForest
 from random_forest.feature_extraction import extract_features_for_random_forest
-from random_forest.visualize import (
-    compute_confusion_matrix,
-    visualize_confusion_matrix,
-    visualize_per_class_accuracy,
-    visualize_error_by_sample
-)
+# from random_forest.visualize import (
+#     compute_confusion_matrix,
+#     visualize_confusion_matrix,
+#     visualize_per_class_accuracy,
+# )
 from random_forest.load_data import N_CLASSES
 
 
@@ -227,15 +226,15 @@ def train_and_evaluate_random_forest(
     print(f"Number of trees: {n_trees}")
     print(f"Features used: {X_train.shape[1]} (from {variance_threshold}% variance)")
     
-    if visualize:
-        print("\nGenerating visualizations...")
+    # if visualize:
+    #     print("\nGenerating visualizations...")
         
-        # confusion matrix
-        confusion_mat = compute_confusion_matrix(test_predictions, y_test, N_CLASSES)
-        visualize_confusion_matrix(confusion_mat)
+    #     # confusion matrix
+    #     confusion_mat = compute_confusion_matrix(test_predictions, y_test, N_CLASSES)
+    #     visualize_confusion_matrix(confusion_mat)
         
-        # per-class accuracy (precision, recall, f1-score)
-        visualize_per_class_accuracy(test_predictions, y_test, N_CLASSES)
+    #     # per-class accuracy (precision, recall, f1-score)
+    #     visualize_per_class_accuracy(test_predictions, y_test, N_CLASSES)
         
     
     return model, train_accuracy, test_accuracy, cv_results
