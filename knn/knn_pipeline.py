@@ -1,9 +1,9 @@
+from utils.loadData import load_data, TRAIN_DATA_POINTS, N_CLASSES
+from utils.processing import generate_class_matrix
+from knn.DynamicTimeWarping import DTW
+
 import numpy as np
 from typing import List
-from loadData import load_data, TRAIN_DATA_POINTS, TEST_DATA_POINTS, N_CLASSES
-from processing import generate_class_matrix
-from DynamicTimeWarping import DTW
-
 
 def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[float]:
     """

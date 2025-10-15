@@ -1,5 +1,5 @@
-from loadData import TRAIN_DATA_POINTS, N_CLASSES
-from processing import get_pattern_mean
+from utils.loadData import TRAIN_DATA_POINTS, N_CLASSES
+from utils.processing import get_pattern_mean
 
 import numpy as np
 import matplotlib.pyplot as plt
