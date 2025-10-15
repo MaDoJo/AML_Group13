@@ -1,5 +1,4 @@
-from utils.loadData import MAX_LENGTH
-from typing import Tuple
+from src.utils.loadData import MAX_LENGTH
 import numpy as np
 
 def get_time_steps(data: np.ndarray) -> np.ndarray:

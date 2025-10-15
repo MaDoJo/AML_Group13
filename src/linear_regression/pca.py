@@ -1,4 +1,4 @@
-from utils.processing import flatten_data, get_pattern_mean
+from src.utils.processing import flatten_data
 
 import numpy as np
 from typing import Tuple
