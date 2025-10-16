@@ -1,9 +1,50 @@
-from utils.load_data import load_data, TRAIN_DATA_POINTS, N_CLASSES
-from src.utils.processing import generate_class_matrix
-from src.knn.DynamicTimeWarping import DTW
+from src.utils.load_data import N_CLASSES, N_CHANNELS
 
 import numpy as np
+from dtaidistance.dtw import distance_fast
 from typing import List
+
+
+def remove_padding(signal: np.ndarray) -> np.ndarray:
+    """
+    Removes the padded values from a signal.
+
+    Args:
+        signal (np.ndarray): a (padded) time series with 12 channels of  
+        cepstrum coefficients.
+
+    Returns:
+        np.ndarray: the same signal as the input signal, but without the 
+        padded values (0's).
+    """
+
+    last_row = np.nonzero(signal)[0][-1] + 1        # last index of non-padded row
+    signal = np.array([signal[:last_row, channel] for channel in range(N_CHANNELS)])
+    return signal
+
+
+def independent_dtw(signal1: np.ndarray, signal2: np.ndarray) -> float:
+    """
+    Calculates the independent Dynamic Time Warping distance (DTW_i). This is
+    done by summing the DTW distances of all channels.
+
+    Args:
+        signal1 (np.ndarray): first signal used to compare DTW_i distance with.
+        signal2 (np.ndarray): second signal used to compare DTW_i distance with.
+
+    Returns:
+        float: independent Dynamic Time Warping distance.
+    """
+
+    signal1 = remove_padding(signal1)
+    signal2 = remove_padding(signal2)
+
+    dtw_i = 0
+    for channel in range(N_CHANNELS):
+        dtw_i += distance_fast(signal1[channel], signal2[channel])
+
+    return dtw_i
+
 
 def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[float]:
     """
@@ -19,7 +60,7 @@ def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[flo
         List[float]: a list of DTW distances from data_point to all data points
         in training_data
     """
-    return [DTW(data_point, training_data[idx]) for idx in range(len(training_data))]
+    return [independent_dtw(data_point, training_data[idx]) for idx in range(len(training_data))]
 
 
 def predict(k_nn: int, distances: List[float], labels: np.ndarray) -> int:
@@ -141,29 +182,11 @@ def get_knn_accuracy(
     return 100 - (misclasses / n_data_points) * 100
 
 
-
-def save_results(accuracies: dict, path: str) -> None:
-    """
-    Writes results to a file.
-
-    Args:
-        accuracies (dict): dictionary with the structure {k_nn: accuracy}.
-        path (str): path where the results will be stored.
-    """
-
-    with open(path, "w") as f:
-        for knn, acc in accuracies.items():
-            f.write(f"{knn} nearest neighbors generated {acc}% accuracy\n")
-
-        f.write(str(accuracies))
-
-
 def knn_hyperparameter_search(
         data: np.ndarray, 
         labels: np.ndarray, 
         k_to_search: range, 
-        k_folds: int, 
-        results_location: str) -> None:
+        k_folds: int) -> dict:
     """
     Performs hyperparameter search on the number of nearest neighbors to use.
     Results are stored in a text file at "results_location". Validation is
@@ -176,8 +199,10 @@ def knn_hyperparameter_search(
         k_to_search (range): the range of k-nearest-neighbors (hyperparameter)
         to search.
         k_folds (int): the number of folds used for the k-fold cross validation.
-        results_location (str): path where the results of the hyperparameter
-        results will be stored.
+
+    Returns:
+        dict: results of the hyperparameter search with the structure 
+        {k_nn: accuracy}.
     """
 
     idxs = np.arange(len(data))
@@ -197,14 +222,14 @@ def knn_hyperparameter_search(
         accuracies.update({k_nn: accuracy})
         print(f"validation accuracy for k = {k_nn}:\t {accuracy}%")
 
-    save_results(accuracies, results_location)
+    return accuracies
 
 
 def knn_accuracy(k_nn: int, 
         test_data: np.ndarray, 
         test_labels: np.ndarray, 
         train_data: np.ndarray, 
-        train_labels: np.ndarray) -> int:
+        train_labels: np.ndarray) -> float:
     """
     Calculates the accuracy of the k-nearest neighbors procedure for a test set
     and a training set.
@@ -216,21 +241,11 @@ def knn_accuracy(k_nn: int,
         train_data (np.ndarray): the training data.
         train_labels (np.ndarray): the labels of the training
         data.
+    
+    Returns:
+        float: accuracy of the k-nearest neighbors procedure.
     """
 
     misclasses = get_knn_misclasses(k_nn, test_data, test_labels, train_data, train_labels)
     return 100 - (misclasses / len(test_data)) * 100
 
-if __name__ == "__main__":
-    train_data = load_data("data/ae.train", num_data_points=TRAIN_DATA_POINTS)
-    class_matrix = generate_class_matrix(TRAIN_DATA_POINTS, N_CLASSES)
-    k_to_search = range(1, 11)
-    path = "search_results5.txt"
-
-    # leave-one-out cross validation
-    knn_hyperparameter_search(
-        data=train_data, 
-        labels=class_matrix, 
-        k_to_search=k_to_search, 
-        k_folds=TRAIN_DATA_POINTS, 
-        results_location=path)
