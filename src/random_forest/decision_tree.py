@@ -4,7 +4,7 @@ import torch
 from torch import Tensor, nn
 from torch.types import Number
 
-import random_forest.utils as utl
+import src.random_forest.utils as utl
 
 
 
@@ -19,6 +19,7 @@ class DecisionTree(nn.Module):
         """
         super().__init__()
         self.n_features_eval = n_features_eval
+        self.max_depth = max_depth
         self.tree = None
     
     class TreeNode:

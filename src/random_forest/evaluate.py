@@ -1,0 +1,90 @@
+#####################################################################################################################################
+
+import torch
+import numpy as np
+from src.random_forest.random_forest import RandomForest
+from src.utils.load_data import N_CLASSES
+
+
+def compute_accuracy(predictions: torch.Tensor, labels: torch.Tensor) -> float:
+    """
+    Compute classification accuracy.
+    
+    Args:
+        predictions (torch.Tensor): Model predictions.
+        labels (torch.Tensor): True labels.
+    
+    Returns:
+        float: Accuracy as a decimal (0-1).
+    """
+    return (predictions == labels).float().mean().item()
+
+
+def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, num_classes: int):
+    """
+    Compute per-class precision, recall, and F1 score.
+    
+    Args:
+        predictions (torch.Tensor): Model predictions.
+        labels (torch.Tensor): True labels.
+        num_classes (int): Number of classes.
+    
+    Returns:
+        dict: Dictionary with per-class metrics.
+    """
+    metrics = {}
+    
+    for class_idx in range(num_classes):
+        true_positives = ((predictions == class_idx) & (labels == class_idx)).sum().item()
+        false_positives = ((predictions == class_idx) & (labels != class_idx)).sum().item()
+        false_negatives = ((predictions != class_idx) & (labels == class_idx)).sum().item()
+        
+        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0.0
+        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        
+        metrics[class_idx] = {
+            'precision': precision,
+            'recall': recall,
+            'f1': f1,
+            'support': (labels == class_idx).sum().item()
+        }
+    
+    return metrics
+
+
+def train_and_evaluate_random_forest(
+    X_train: torch.Tensor,
+    y_train: torch.Tensor,
+    X_test: torch.Tensor,
+    y_test: torch.Tensor,
+    n_trees: int,
+    max_depth: int,
+):
+    """
+    Complete pipeline to train and evaluate Random Forest on speaker classification.
+    
+    Args:
+        train_data_path (str): Path to training data file.
+        test_data_path (str): Path to test data file.
+        n_trees (int): Number of trees in the forest.
+        variance_threshold (float): Percentage of variance to retain in PCA.
+        use_cross_validation (bool): Whether to perform cross-validation.
+        k_folds (int): Number of folds for cross-validation.
+        visualize (bool): Whether to show visualization plots.
+    
+    Returns:
+        tuple: (model, train_accuracy, test_accuracy, cv_results)
+    """
+    model = RandomForest(n_trees=n_trees, max_depth=max_depth)
+    model.train_forest(X_train, y_train)
+    
+    # Eval on test
+    with torch.no_grad():
+        test_predictions = model(X_test)
+        test_accuracy = compute_accuracy(test_predictions, y_test)
+    
+    # compute per-class metrics
+    metrics = compute_per_class_metrics(test_predictions, y_test, N_CLASSES)
+
+    return model, test_accuracy, metrics
