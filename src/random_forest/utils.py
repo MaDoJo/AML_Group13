@@ -106,7 +106,7 @@ def find_best_feature_split(
     N = len(y)
 
     for i in range(1, N):
-        if y_sorted[i] != y_sorted[i - 1]:
+        if y_sorted[i].item() != y_sorted[i - 1].item():
             threshold = ((values[i] + values[i - 1]) / 2).item()
 
             split_gain = compute_split_gain(X, y, feature_idx, threshold=threshold)

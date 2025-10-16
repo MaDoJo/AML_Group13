@@ -2,9 +2,73 @@
 
 import torch
 import numpy as np
+from typing import Union, Optional, Tuple
 from src.random_forest.random_forest import RandomForest
 from src.utils.load_data import N_CLASSES
 
+def prepare_tensors_for_training(
+    x_train: Union[torch.Tensor, np.ndarray],
+    y_train: Union[torch.Tensor, np.ndarray],
+    x_val: Optional[Union[torch.Tensor, np.ndarray]]=None,
+    y_val: Optional[Union[torch.Tensor, np.ndarray]]=None,
+    dtype_x: torch.dtype = torch.float32,
+    dtype_y: torch.dtype = torch.long
+) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
+    """
+    Converts NumPy arrays or Torch tensors into properly typed PyTorch tensors.
+    Converts one-hot encoded labels to class indices.
+
+    Args:
+        x_train (Union[torch.Tensor, np.ndarray]): Training features.
+        y_train (Union[torch.Tensor, np.ndarray]): Training labels (NumPy or Torch tensor, may be one-hot)
+        x_val (Optional[Union[torch.Tensor, np.ndarray]]): Optional validation features.
+        y_val (Optional[Union[torch.Tensor, np.ndarray]]): Optional validation labels.
+        dtype_x (torch.dtype, default=torch.float32): Feature tensor dtype.
+        dtype_y (torch.dtype, default=torch.long): Label tensor dtype.
+
+    Returns:
+        (Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]):
+            - X_train_tensor
+            - y_train_tensor 
+            - X_val_tensor
+            - y_val_tensor
+    """
+
+    def to_tensor(x, dtype):
+        # Converts data to tensor with specified dtype
+        if isinstance(x, np.ndarray):
+            return torch.tensor(x, dtype=dtype)
+        elif isinstance(x, torch.Tensor):
+            return x.to(dtype)
+        else:
+            raise TypeError(f"Unsupported type: {type(x)}")
+
+    def handle_labels(y):
+        # Converts one-hot encoded labels to class indices
+        if isinstance(y, np.ndarray):
+            if y.ndim > 1 and y.shape[1] > 1:
+                y = np.argmax(y, axis=1)
+        elif isinstance(y, torch.Tensor):
+            if y.ndim > 1 and y.shape[1] > 1:
+                y = torch.argmax(y, dim=1)
+        else:
+            raise TypeError(f"Unsupported label type: {type(y)}")
+        return y
+
+    # Prepare train tensors
+    y_train = handle_labels(y_train)
+    X_train_tensor = to_tensor(x_train, dtype_x)
+    y_train_tensor = to_tensor(y_train, dtype_y)
+
+    # Prepare val tensors
+    X_val_tensor = None
+    y_val_tensor = None
+    if x_val is not None and y_val is not None:
+        y_val = handle_labels(y_val)
+        X_val_tensor = to_tensor(x_val, dtype_x)
+        y_val_tensor = to_tensor(y_val, dtype_y)
+    
+    return X_train_tensor, y_train_tensor, X_val_tensor, y_val_tensor
 
 def compute_accuracy(predictions: torch.Tensor, labels: torch.Tensor) -> float:
     """
