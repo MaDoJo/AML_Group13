@@ -1,0 +1,72 @@
+import numpy as np
+import pandas as pd
+from scipy.interpolate import interp1d
+from src.utils.loadData import TRAIN_DATA_POINTS, N_CLASSES 
+
+def augment_data(data, augmentations_per_sample=3,
+                 noise_std=0.01, scale_range=(0.9, 1.1), time_warp_range=(0.9, 1.1)) -> np.ndarray:
+    """
+    Perform 3 augmentation techniques on cepstral time series data arranged by class.
+    Each original sample produces 3 new augmented samples.
+
+    Args:
+        data : np.ndarray, shape (N, T, F)
+            Original training data (e.g. (270, 29, 12))
+        augmentations_per_sample : int
+            Number of augmentations to apply per sample (default 3)
+        noise_std : float
+            Standard deviation factor for Gaussian noise
+        scale_range : tuple
+            Range (min, max) for random scaling
+        time_warp_range : tuple
+            Range (min, max) for random time-warping factor
+
+    Returns:
+        augmented_train_data : pd.DataFrame
+            DataFrame with 'data' and 'class_id' columns
+    """
+    N, T, F = data.shape
+    points_per_class = N // N_CLASSES
+
+    augmented_samples = []
+    augmented_class_ids = []
+
+    for class_id in range(N_CLASSES):
+        start = class_id * points_per_class
+        end = (class_id + 1) * points_per_class
+        class_data = data[start:end]
+
+        for x in class_data:
+            # 1. Additive Gaussian noise
+            noise = np.random.normal(0, noise_std * np.std(x), x.shape)
+            x_noise = x + noise
+
+            # 2. Random scaling
+            scale = np.random.uniform(*scale_range)
+            x_scaled = x * scale
+
+            # 3. Time warping
+            factor = np.random.uniform(*time_warp_range)
+            t_original = np.arange(T)
+            f = interp1d(t_original, x, axis=0, fill_value="extrapolate")
+            x_warped = f(np.linspace(0, T - 1, T))
+
+            augmented_samples.extend([x_noise, x_scaled, x_warped])
+            augmented_class_ids.extend([class_id] * 3)
+
+    # combine with originals
+    all_data = np.concatenate([data, np.stack(augmented_samples)], axis=0)
+    all_class_ids = np.concatenate([
+        np.repeat(np.arange(N_CLASSES), points_per_class),
+        np.array(augmented_class_ids)
+    ])
+
+    # pack into DataFrame
+    df = pd.DataFrame({
+        "data": list(all_data),
+        "class_id": all_class_ids
+    })
+
+    return df
+
+
