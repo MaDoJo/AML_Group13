@@ -164,6 +164,7 @@ def visualize_PC_variance(singular_values: np.ndarray, log: bool=False) -> None:
 
     # generate the correct title
     title = ("Log 10 " if log else "") + "Principal Component Variances"
+    y_label = ("(Log 10) v" if log else "V") + "ariance"
 
     # get the log of the PC variances if log == True
     if log:
@@ -172,6 +173,8 @@ def visualize_PC_variance(singular_values: np.ndarray, log: bool=False) -> None:
     plt.figure(figsize=(12, 6))
     plt.plot(x_axis, singular_values)
     plt.title(title, fontsize=14)
+    plt.xlabel('Features', fontsize=12)
+    plt.ylabel(y_label, fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.tight_layout()
 
