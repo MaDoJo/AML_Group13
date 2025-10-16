@@ -1,26 +1,9 @@
 from src.utils.load_data import N_CLASSES, N_CHANNELS
+from src.utils.processing import remove_padding
 
 import numpy as np
 from dtaidistance.dtw import distance_fast
 from typing import List
-
-
-def remove_padding(signal: np.ndarray) -> np.ndarray:
-    """
-    Removes the padded values from a signal.
-
-    Args:
-        signal (np.ndarray): a (padded) time series with 12 channels of  
-        cepstrum coefficients.
-
-    Returns:
-        np.ndarray: the same signal as the input signal, but without the 
-        padded values (0's).
-    """
-
-    last_row = np.nonzero(signal)[0][-1] + 1        # last index of non-padded row
-    signal = np.array([signal[:last_row, channel] for channel in range(N_CHANNELS)])
-    return signal
 
 
 def independent_dtw(signal1: np.ndarray, signal2: np.ndarray) -> float:

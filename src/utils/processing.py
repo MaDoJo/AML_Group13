@@ -1,4 +1,4 @@
-from src.utils.load_data import MAX_LENGTH
+from src.utils.load_data import MAX_LENGTH, N_CHANNELS
 import numpy as np
 
 def get_time_steps(data: np.ndarray) -> np.ndarray:
@@ -121,3 +121,21 @@ def generate_test_class_matrix(n_data_points: int, n_classes: int) -> np.ndarray
             else 0 
             for idx in range(n_classes)] 
             for data_point in range(n_data_points)])
+
+
+def remove_padding(signal: np.ndarray) -> np.ndarray:
+    """
+    Removes the padded values from a signal.
+
+    Args:
+        signal (np.ndarray): a (padded) time series with 12 channels of  
+        cepstrum coefficients.
+
+    Returns:
+        np.ndarray: the same signal as the input signal, but without the 
+        padded values (0's).
+    """
+
+    last_row = np.nonzero(signal)[0][-1] + 1        # last index of non-padded row
+    signal = np.array([signal[:last_row, channel] for channel in range(N_CHANNELS)])
+    return signal
