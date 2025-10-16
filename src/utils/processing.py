@@ -1,4 +1,4 @@
-from src.utils.loadData import MAX_LENGTH
+from src.utils.load_data import MAX_LENGTH
 import numpy as np
 
 def get_time_steps(data: np.ndarray) -> np.ndarray:

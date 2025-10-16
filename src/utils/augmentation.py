@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-from src.utils.loadData import TRAIN_DATA_POINTS, N_CLASSES 
+from utils.load_data import TRAIN_DATA_POINTS, N_CLASSES 
 
 def augment_data(data, augmentations_per_sample=3,
                  noise_std=0.01, scale_range=(0.9, 1.1), time_warp_range=(0.9, 1.1)) -> np.ndarray:

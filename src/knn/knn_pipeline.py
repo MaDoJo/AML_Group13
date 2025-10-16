@@ -1,4 +1,4 @@
-from src.utils.loadData import load_data, TRAIN_DATA_POINTS, N_CLASSES
+from utils.load_data import load_data, TRAIN_DATA_POINTS, N_CLASSES
 from src.utils.processing import generate_class_matrix
 from src.knn.DynamicTimeWarping import DTW
 

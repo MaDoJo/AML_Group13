@@ -1,4 +1,4 @@
-from src.utils.loadData import TRAIN_DATA_POINTS, N_CLASSES
+from src.utils.load_data import TRAIN_DATA_POINTS, N_CLASSES
 from src.utils.processing import get_pattern_mean
 
 import numpy as np

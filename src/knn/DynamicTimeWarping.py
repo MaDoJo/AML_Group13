@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.utils.loadData import MAX_LENGTH, N_CHANNELS
+from utils.load_data import MAX_LENGTH, N_CHANNELS
 
 def format_signal(signal: np.ndarray) -> np.ndarray:
     """

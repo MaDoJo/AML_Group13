@@ -4,11 +4,6 @@ import torch
 import numpy as np
 from random_forest.random_forest import RandomForest
 from random_forest.feature_extraction import extract_features_for_random_forest
-# from random_forest.visualize import (
-#     compute_confusion_matrix,
-#     visualize_confusion_matrix,
-#     visualize_per_class_accuracy,
-# )
 from random_forest.load_data import N_CLASSES
 
 
@@ -57,7 +52,6 @@ def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, n
         }
     
     return metrics
-
 
 def k_fold_cross_validation(X: torch.Tensor, y: torch.Tensor, n_trees: int, k: int = 5):
     """
@@ -134,8 +128,6 @@ def k_fold_cross_validation(X: torch.Tensor, y: torch.Tensor, n_trees: int, k: i
         'mean_accuracy': mean_accuracy,
         'std_accuracy': std_accuracy
     }
-
-
 
 def train_and_evaluate_random_forest(
     train_data_path: str = "ae.train",
