@@ -6,7 +6,7 @@ import numpy as np
 import torch
 
 from src.random_forest.random_forest import RandomForest
-from src.utils.load_data import N_CLASSES
+from src.utils.config import N_CLASSES
 
 
 def prepare_tensors_for_training(

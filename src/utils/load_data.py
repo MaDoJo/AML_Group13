@@ -1,13 +1,7 @@
 import os
-
 import numpy as np
 
-TRAIN_DATA_POINTS = 270
-TEST_DATA_POINTS = 370
-N_CHANNELS = 12
-N_CLASSES = 9
-MAX_LENGTH = 29
-
+from src.utils.processing import add_padding
 
 def load_data(
     file_path: str, num_data_points: int, padding_value: float = 0.0
@@ -60,15 +54,10 @@ def load_data(
         )
         return None
 
-    # pad the signals to be all the same length (MAX_LENGTH)
+    # pad the signals to be all the same length
     padded_data_points = []
     for arr in data_points:
-        # create a padding array of the required size
-        n_rows_to_pad = MAX_LENGTH - arr.shape[0]
-        padding = np.full((n_rows_to_pad, N_CHANNELS), padding_value, dtype=arr.dtype)
-
-        # add the padding to the the original array
-        padded_arr = np.vstack([arr, padding])
+        padded_arr = add_padding(arr, padding_value)
         padded_data_points.append(padded_arr)
 
     # put the padded signals in a numpy array

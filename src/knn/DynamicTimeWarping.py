@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.knn.knn_pipeline import remove_padding
-from src.utils.load_data import MAX_LENGTH, N_CHANNELS
+from src.utils.config import MAX_LENGTH, N_CHANNELS
 
 
 def get_distance_matrix(signal1: np.ndarray, signal2: np.ndarray) -> np.ndarray:

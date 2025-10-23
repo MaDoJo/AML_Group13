@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.utils.load_data import MAX_LENGTH, N_CHANNELS
+from src.utils.config import MAX_LENGTH, N_CHANNELS
 
 
 def get_time_steps(data: np.ndarray) -> np.ndarray:
@@ -157,3 +157,24 @@ def remove_padding(signal: np.ndarray) -> np.ndarray:
     last_row = np.nonzero(signal)[0][-1] + 1  # last index of non-padded row
     signal = np.array([signal[:last_row, channel] for channel in range(N_CHANNELS)])
     return signal
+
+
+def add_padding(data_point: np.ndarray, padding_value: int=0) -> np.ndarray:
+    """
+    Adds padding to a data point.
+
+    Args:
+        data_point (np.ndarray): a (non-padded) time series with 12 channels of
+        cepstrum coefficients.
+        padding_value (int): value to pad the signal with.
+
+    Returns:
+        np.ndarray: the padded signal
+    """
+
+    # create a padding array of the required size
+    n_rows_to_pad = MAX_LENGTH - data_point.shape[0]
+    padding = np.full((n_rows_to_pad, N_CHANNELS), padding_value, dtype=data_point.dtype)
+
+    # add the padding to the the original array
+    return np.vstack([data_point, padding])

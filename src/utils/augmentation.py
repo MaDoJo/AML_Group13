@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.interpolate import interp1d
 
-from src.utils.load_data import N_CLASSES
+from src.utils.config import N_CLASSES
+from src.utils.processing import remove_padding, add_padding
 
 
 def augment_data(
@@ -43,19 +44,20 @@ def augment_data(
         class_data = data[start:end]
 
         for x in class_data:
+            x = remove_padding(x)
             # 1. Additive Gaussian noise
             noise = np.random.normal(0, noise_std * np.std(x), x.shape)
-            x_noise = x + noise
+            x_noise = add_padding(x + noise)
 
             # 2. Random scaling
             scale = np.random.uniform(*scale_range)
-            x_scaled = x * scale
+            x_scaled = add_padding(x * scale)
 
             # 3. Time warping
             factor = np.random.uniform(*time_warp_range)
             t_original = np.arange(T)
             f = interp1d(t_original, x, axis=0, fill_value="extrapolate")
-            x_warped = f(np.linspace(0, T - 1, T))
+            x_warped = add_padding(f(np.linspace(0, T - 1, T)))
 
             augmented_samples.extend([x_noise, x_scaled, x_warped])
             augmented_class_ids.extend([class_id] * 3)

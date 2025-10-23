@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.utils.load_data import N_CLASSES, TRAIN_DATA_POINTS
+from src.utils.config import N_CLASSES, TRAIN_DATA_POINTS
 from src.utils.processing import get_pattern_mean
 
 

@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from dtaidistance.dtw import distance_fast
 
-from src.utils.load_data import N_CHANNELS, N_CLASSES
+from src.utils.config import N_CHANNELS, N_CLASSES
 from src.utils.metrics import compute_accuracy
 from src.utils.processing import remove_padding
 
