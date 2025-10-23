@@ -2,7 +2,8 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 from src.utils.config import N_CLASSES
-from src.utils.processing import remove_padding, add_padding, generate_class_matrix
+from src.utils.processing import (add_padding, generate_class_matrix,
+                                  remove_padding)
 
 
 def augment_data(
@@ -61,7 +62,7 @@ def augment_data(
 
             augmented_samples.extend([x_original, x_noise, x_scaled, x_warped])
 
-    augmented_samples = np.array(augmented_samples)    
+    augmented_samples = np.array(augmented_samples)
     all_class_ids = generate_class_matrix(augmented_samples.shape[0], N_CLASSES)
 
     return augmented_samples, all_class_ids

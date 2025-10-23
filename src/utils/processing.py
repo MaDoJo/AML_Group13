@@ -159,7 +159,7 @@ def remove_padding(signal: np.ndarray) -> np.ndarray:
     return signal
 
 
-def add_padding(data_point: np.ndarray, padding_value: int=0) -> np.ndarray:
+def add_padding(data_point: np.ndarray, padding_value: int = 0) -> np.ndarray:
     """
     Adds padding to a data point.
 
@@ -174,7 +174,9 @@ def add_padding(data_point: np.ndarray, padding_value: int=0) -> np.ndarray:
 
     # create a padding array of the required size
     n_rows_to_pad = MAX_LENGTH - data_point.shape[0]
-    padding = np.full((n_rows_to_pad, N_CHANNELS), padding_value, dtype=data_point.dtype)
+    padding = np.full(
+        (n_rows_to_pad, N_CHANNELS), padding_value, dtype=data_point.dtype
+    )
 
     # add the padding to the the original array
     return np.vstack([data_point, padding])

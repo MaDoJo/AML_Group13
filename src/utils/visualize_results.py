@@ -64,11 +64,18 @@ def plot_first_2_PCs(PCs: np.ndarray, labels: np.ndarray) -> None:
     plt.show()
 
 
-def plot_cm(title: str, true_labels: np.ndarray, predictions: np.ndarray) -> None:
+def plot_cm(
+    title: str, true_labels: np.ndarray, predictions: np.ndarray, save_path: str
+) -> None:
 
     cm = confusion_matrix(true_labels, predictions)
 
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot(cmap="Blues", values_format="d")
     plt.title(title)
+
+    plt.savefig(save_path, bbox_inches="tight", dpi=300)
+
     plt.show()
+
+    plt.close()

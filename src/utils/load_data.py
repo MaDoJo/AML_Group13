@@ -1,7 +1,9 @@
 import os
+
 import numpy as np
 
 from src.utils.processing import add_padding
+
 
 def load_data(
     file_path: str, num_data_points: int, padding_value: float = 0.0
@@ -63,5 +65,4 @@ def load_data(
     # put the padded signals in a numpy array
     data_numpy_array = np.array(padded_data_points)
 
-    print(f"Successfully created a NumPy array with shape: {data_numpy_array.shape}")
     return data_numpy_array
