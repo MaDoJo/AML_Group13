@@ -43,8 +43,8 @@ def augment_data(
         end = (class_id + 1) * points_per_class
         class_data = data[start:end]
 
-        for x in class_data:
-            x = remove_padding(x).transpose()
+        for x_original in class_data:
+            x = remove_padding(x_original).transpose()
             # 1. Additive Gaussian noise
             noise = np.random.normal(0, noise_std * np.std(x), x.shape)
             x_noise = add_padding(x + noise)
@@ -59,11 +59,9 @@ def augment_data(
             f = interp1d(t_original, x, axis=0, fill_value="extrapolate")
             x_warped = add_padding(f(np.linspace(0, x.shape[0] - 1, x.shape[0])))
 
-            augmented_samples.extend([x_noise, x_scaled, x_warped])
-            augmented_class_ids.extend([class_id] * 3)
+            augmented_samples.extend([x_original, x_noise, x_scaled, x_warped])
 
-    # combine with originals
-    all_data = np.concatenate([data, np.stack(augmented_samples)], axis=0)
-    all_class_ids = generate_class_matrix(all_data.shape[0], N_CLASSES)
+    augmented_samples = np.array(augmented_samples)    
+    all_class_ids = generate_class_matrix(augmented_samples.shape[0], N_CLASSES)
 
-    return all_data, all_class_ids
+    return augmented_samples, all_class_ids
