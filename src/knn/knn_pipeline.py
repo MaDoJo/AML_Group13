@@ -1,10 +1,11 @@
-from src.utils.load_data import N_CLASSES, N_CHANNELS
-from src.utils.processing import remove_padding
-from src.utils.metrics import compute_accuracy
+from typing import List
 
 import numpy as np
 from dtaidistance.dtw import distance_fast
-from typing import List
+
+from src.utils.load_data import N_CHANNELS, N_CLASSES
+from src.utils.metrics import compute_accuracy
+from src.utils.processing import remove_padding
 
 
 def independent_dtw(signal1: np.ndarray, signal2: np.ndarray) -> float:
@@ -36,7 +37,7 @@ def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[flo
     other data points in the training data.
 
     Args:
-        data_point (np.ndarray): the data point to measure the DTW distances of 
+        data_point (np.ndarray): the data point to measure the DTW distances of
         all training data points with.
         training_data (np.ndarray): the training data points.
 
@@ -44,20 +45,23 @@ def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[flo
         List[float]: a list of DTW distances from data_point to all data points
         in training_data
     """
-    return [independent_dtw(data_point, training_data[idx]) for idx in range(len(training_data))]
+    return [
+        independent_dtw(data_point, training_data[idx])
+        for idx in range(len(training_data))
+    ]
 
 
 def predict(k_nn: int, distances: List[float], labels: np.ndarray) -> int:
     """
-    Predicts the class of a data point, given the Dynamic Time Warp (DTW) 
-    distances to all points in the training data, from that data point. The 
-    labels of the k nearest neighbors are collected, and the most frequently 
-    collected class-label is returned as the prediction. Ties are broken in 
+    Predicts the class of a data point, given the Dynamic Time Warp (DTW)
+    distances to all points in the training data, from that data point. The
+    labels of the k nearest neighbors are collected, and the most frequently
+    collected class-label is returned as the prediction. Ties are broken in
     favor of the class with the lowest index in the class vector.
 
     Args:
         k_nn (int): the number of nearest neighbors to determine the class of.
-        distances (List[float]): the DTW distances between one data point and 
+        distances (List[float]): the DTW distances between one data point and
         all data points in the training data.
         labels (np.ndarray): list of all labels (class-vectors), corresponding
         to the training data.
@@ -94,14 +98,14 @@ def concat_folds(folds: np.ndarray, validation_fold: int, k_folds: int) -> np.nd
     Returns:
         np.ndarray: an array with all folds used for training.
     """
-    return np.concatenate([folds[idx] for idx in range(k_folds) if idx != validation_fold])
+    return np.concatenate(
+        [folds[idx] for idx in range(k_folds) if idx != validation_fold]
+    )
 
 
 def get_knn_predictions(
-        k_nn: int, 
-        test_data: np.ndarray, 
-        train_data: np.ndarray, 
-        train_labels: np.ndarray) -> np.ndarray:
+    k_nn: int, test_data: np.ndarray, train_data: np.ndarray, train_labels: np.ndarray
+) -> np.ndarray:
     """
     Collects the predictions of the test data, given the training data and labels.
 
@@ -126,17 +130,15 @@ def get_knn_predictions(
 
 
 def knn_hyperparameter_search(
-        data: np.ndarray, 
-        labels: np.ndarray, 
-        k_to_search: range, 
-        k_folds: int) -> dict:
+    data: np.ndarray, labels: np.ndarray, k_to_search: range, k_folds: int
+) -> dict:
     """
     Performs hyperparameter search on the number of nearest neighbors to use.
     Results are stored in a text file at "results_location". Validation is
     done with k-fold cross validation.
 
     Args:
-        data (np.ndarray): list of data points. Each data point is a time 
+        data (np.ndarray): list of data points. Each data point is a time
         series with 12 channels of cepstrum coefficients.
         labels (np.ndarray): list of one-hot encoded class-labels.
         k_to_search (range): the range of k-nearest-neighbors (hyperparameter)
@@ -144,7 +146,7 @@ def knn_hyperparameter_search(
         k_folds (int): the number of folds used for the k-fold cross validation.
 
     Returns:
-        dict: results of the hyperparameter search with the structure 
+        dict: results of the hyperparameter search with the structure
         {k_nn: accuracy}.
     """
 
@@ -168,8 +170,12 @@ def knn_hyperparameter_search(
             validation_data = data_folds[val_fold]
             validation_labels = label_folds[val_fold]
 
-            predictions = get_knn_predictions(k_nn, validation_data, training_data, training_labels)
-            accuracy = compute_accuracy(predictions, np.argmax(validation_labels, axis=1))
+            predictions = get_knn_predictions(
+                k_nn, validation_data, training_data, training_labels
+            )
+            accuracy = compute_accuracy(
+                predictions, np.argmax(validation_labels, axis=1)
+            )
             accuracies.update({k_nn: accuracy})
 
     return accuracies

@@ -1,18 +1,21 @@
 #####################################################################################################################################
 
-import torch
+from typing import Optional, Tuple, Union
+
 import numpy as np
-from typing import Union, Optional, Tuple
+import torch
+
 from src.random_forest.random_forest import RandomForest
 from src.utils.load_data import N_CLASSES
+
 
 def prepare_tensors_for_training(
     x_train: Union[torch.Tensor, np.ndarray],
     y_train: Union[torch.Tensor, np.ndarray],
-    x_val: Optional[Union[torch.Tensor, np.ndarray]]=None,
-    y_val: Optional[Union[torch.Tensor, np.ndarray]]=None,
+    x_val: Optional[Union[torch.Tensor, np.ndarray]] = None,
+    y_val: Optional[Union[torch.Tensor, np.ndarray]] = None,
     dtype_x: torch.dtype = torch.float32,
-    dtype_y: torch.dtype = torch.long
+    dtype_y: torch.dtype = torch.long,
 ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
     """
     Converts NumPy arrays or Torch tensors into properly typed PyTorch tensors.
@@ -29,7 +32,7 @@ def prepare_tensors_for_training(
     Returns:
         (Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]):
             - X_train_tensor
-            - y_train_tensor 
+            - y_train_tensor
             - X_val_tensor
             - y_val_tensor
     """
@@ -67,32 +70,35 @@ def prepare_tensors_for_training(
         y_val = handle_labels(y_val)
         X_val_tensor = to_tensor(x_val, dtype_x)
         y_val_tensor = to_tensor(y_val, dtype_y)
-    
+
     return X_train_tensor, y_train_tensor, X_val_tensor, y_val_tensor
+
 
 def compute_accuracy(predictions: torch.Tensor, labels: torch.Tensor) -> float:
     """
     Compute classification accuracy.
-    
+
     Args:
         predictions (torch.Tensor): Model predictions.
         labels (torch.Tensor): True labels.
-    
+
     Returns:
         float: Accuracy as a decimal (0-1).
     """
     return (predictions == labels).float().mean().item()
 
 
-def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, num_classes: int):
+def compute_per_class_metrics(
+    predictions: torch.Tensor, labels: torch.Tensor, num_classes: int
+):
     """
     Compute per-class and overall precision, recall, F1 score, and accuracy.
-    
+
     Args:
         predictions (torch.Tensor): Model predictions.
         labels (torch.Tensor): True labels.
         num_classes (int): Number of classes.
-    
+
     Returns:
         dict: Dictionary with per-class metrics and overall metrics (including accuracy).
     """
@@ -100,22 +106,40 @@ def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, n
     precisions, recalls, f1s, supports = [], [], [], []
 
     for class_idx in range(num_classes):
-        true_positives = ((predictions == class_idx) & (labels == class_idx)).sum().item()
-        false_positives = ((predictions == class_idx) & (labels != class_idx)).sum().item()
-        false_negatives = ((predictions != class_idx) & (labels == class_idx)).sum().item()
-        
-        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0.0
-        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
-        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        true_positives = (
+            ((predictions == class_idx) & (labels == class_idx)).sum().item()
+        )
+        false_positives = (
+            ((predictions == class_idx) & (labels != class_idx)).sum().item()
+        )
+        false_negatives = (
+            ((predictions != class_idx) & (labels == class_idx)).sum().item()
+        )
+
+        precision = (
+            true_positives / (true_positives + false_positives)
+            if (true_positives + false_positives) > 0
+            else 0.0
+        )
+        recall = (
+            true_positives / (true_positives + false_negatives)
+            if (true_positives + false_negatives) > 0
+            else 0.0
+        )
+        f1 = (
+            2 * (precision * recall) / (precision + recall)
+            if (precision + recall) > 0
+            else 0.0
+        )
         support = (labels == class_idx).sum().item()
-        
+
         metrics[class_idx] = {
-            'precision': precision,
-            'recall': recall,
-            'f1': f1,
-            'support': support
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+            "support": support,
         }
-        
+
         precisions.append(precision)
         recalls.append(recall)
         f1s.append(f1)
@@ -128,11 +152,11 @@ def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, n
 
     accuracy = (predictions == labels).float().mean().item()
 
-    metrics['overall'] = {
-        'accuracy': accuracy,
-        'precision': total_precision,
-        'recall': total_recall,
-        'f1': total_f1
+    metrics["overall"] = {
+        "accuracy": accuracy,
+        "precision": total_precision,
+        "recall": total_recall,
+        "f1": total_f1,
     }
 
     return metrics
@@ -148,7 +172,7 @@ def train_and_evaluate_random_forest(
 ):
     """
     Complete pipeline to train and evaluate Random Forest on speaker classification.
-    
+
     Args:
         train_data_path (str): Path to training data file.
         test_data_path (str): Path to test data file.
@@ -157,18 +181,18 @@ def train_and_evaluate_random_forest(
         use_cross_validation (bool): Whether to perform cross-validation.
         k_folds (int): Number of folds for cross-validation.
         visualize (bool): Whether to show visualization plots.
-    
+
     Returns:
         tuple: (model, train_accuracy, test_accuracy, cv_results)
     """
     model = RandomForest(n_trees=n_trees, max_depth=max_depth)
     model.train_forest(X_train, y_train)
-    
+
     # Eval on test
     with torch.no_grad():
         test_predictions = model(X_test)
         test_accuracy = compute_accuracy(test_predictions, y_test)
-    
+
     # compute per-class metrics
     metrics = compute_per_class_metrics(test_predictions, y_test, N_CLASSES)
 

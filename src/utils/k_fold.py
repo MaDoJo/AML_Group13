@@ -1,20 +1,20 @@
+from typing import List, Tuple
+
 import numpy as np
-from typing import Tuple, List
+
 
 def get_k_folds(
-    X: np.ndarray,
-    y: np.ndarray,
-    k: int = 5
+    X: np.ndarray, y: np.ndarray, k: int = 5
 ) -> List[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
     """
     Perform stratified k-fold cross-validation on training data.
     Ensures each fold has roughly equal class proportions.
-    
+
     Args:
         X (np.ndarray): Training features.
         y (np.ndarray): Training labels.
         k (int): Number of folds.
-    
+
     Returns:
         List[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
             Each tuple contains:
@@ -27,7 +27,7 @@ def get_k_folds(
     for class_label in unique_classes:
         class_indices = np.where(y == class_label)[0]
         np.random.shuffle(class_indices)
-        
+
         for i, idx in enumerate(class_indices):
             fold_indices[i % k].append(idx)
 

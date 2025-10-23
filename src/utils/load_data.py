@@ -1,5 +1,6 @@
-import numpy as np
 import os
+
+import numpy as np
 
 TRAIN_DATA_POINTS = 270
 TEST_DATA_POINTS = 370
@@ -7,11 +8,14 @@ N_CHANNELS = 12
 N_CLASSES = 9
 MAX_LENGTH = 29
 
-def load_data(file_path: str, num_data_points: int, padding_value: float=0.0) -> np.ndarray:
+
+def load_data(
+    file_path: str, num_data_points: int, padding_value: float = 0.0
+) -> np.ndarray:
     """
-    Loads the data from the data files, splits it into num_data_points individual 
-    data points, (which are time series with N_CHANNELS channels of cepstrum 
-    coefficients), pads them to the maximum sequence length (MAX_LENGTH), and 
+    Loads the data from the data files, splits it into num_data_points individual
+    data points, (which are time series with N_CHANNELS channels of cepstrum
+    coefficients), pads them to the maximum sequence length (MAX_LENGTH), and
     returns a 3D NumPy array of shape (num_data_points, MAX_LENGTH, N_CHANNELS).
 
     Args:
@@ -20,7 +24,7 @@ def load_data(file_path: str, num_data_points: int, padding_value: float=0.0) ->
         padding_value (float): The value used to pad shorter sequences.
 
     Returns:
-        numpy.ndarray: The data from the data file as a NumPy array of shape 
+        numpy.ndarray: The data from the data file as a NumPy array of shape
         (num_data_points, MAX_LENGTH, N_CHANNELS).
     """
 
@@ -36,8 +40,10 @@ def load_data(file_path: str, num_data_points: int, padding_value: float=0.0) ->
     separator_indices = np.where(is_separator)[0]
 
     if len(separator_indices) != num_data_points:
-        print(f"Warning: Found {len(separator_indices)} separator rows, expected \
-              {num_data_points}.")
+        print(
+            f"Warning: Found {len(separator_indices)} separator rows, expected \
+              {num_data_points}."
+        )
 
     # split the data into individual data points
     data_points = []
@@ -48,9 +54,11 @@ def load_data(file_path: str, num_data_points: int, padding_value: float=0.0) ->
         start_idx = sep_idx + 1
 
     if len(data_points) != num_data_points:
-            print(f"Error: Number of extracted data points ({len(data_points)}) \
-                  does not match expected ({num_data_points}).")
-            return None
+        print(
+            f"Error: Number of extracted data points ({len(data_points)}) \
+                  does not match expected ({num_data_points})."
+        )
+        return None
 
     # pad the signals to be all the same length (MAX_LENGTH)
     padded_data_points = []

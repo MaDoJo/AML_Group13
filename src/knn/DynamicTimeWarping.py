@@ -1,7 +1,7 @@
 import numpy as np
 
-from src.utils.load_data import MAX_LENGTH, N_CHANNELS
 from src.knn.knn_pipeline import remove_padding
+from src.utils.load_data import MAX_LENGTH, N_CHANNELS
 
 
 def get_distance_matrix(signal1: np.ndarray, signal2: np.ndarray) -> np.ndarray:
@@ -14,7 +14,7 @@ def get_distance_matrix(signal1: np.ndarray, signal2: np.ndarray) -> np.ndarray:
         signal2 (np.ndarray): second signal used in the distance matrix.
 
     Returns:
-        np.ndarray: the distance matrix with shape (length signal 1, length 
+        np.ndarray: the distance matrix with shape (length signal 1, length
         signal 2).
     """
 
@@ -32,7 +32,11 @@ def get_distance_matrix(signal1: np.ndarray, signal2: np.ndarray) -> np.ndarray:
             # the current point
             lowest_connection = 0
             if idx1 > 0 and idx2 > 0:
-                lowest_connection = min(distance_matrix[idx1 - 1, idx2], distance_matrix[idx1, idx2 - 1], distance_matrix[idx1 - 1, idx2 - 1])
+                lowest_connection = min(
+                    distance_matrix[idx1 - 1, idx2],
+                    distance_matrix[idx1, idx2 - 1],
+                    distance_matrix[idx1 - 1, idx2 - 1],
+                )
             elif idx1 > 0:
                 lowest_connection = distance_matrix[idx1 - 1, idx2]
             elif idx2 > 0:
@@ -57,15 +61,19 @@ def DTW(signal1: np.ndarray, signal2: np.ndarray) -> float:
     """
 
     if signal1.shape != (MAX_LENGTH, N_CHANNELS):
-        print(f"expected second signal to have {MAX_LENGTH} time steps and \
+        print(
+            f"expected second signal to have {MAX_LENGTH} time steps and \
               {N_CHANNELS} channels, got {signal1.shape[0]} time steps and \
-                {signal1.shape[1]} channels instead.")
+                {signal1.shape[1]} channels instead."
+        )
         return
 
     if signal1.shape != (MAX_LENGTH, N_CHANNELS):
-        print(f"expected second signal to have {MAX_LENGTH} time steps and \
+        print(
+            f"expected second signal to have {MAX_LENGTH} time steps and \
               {N_CHANNELS} channels, got {signal2.shape[0]} time steps and \
-                {signal2.shape[1]} channels instead.")
+                {signal2.shape[1]} channels instead."
+        )
         return
 
     # strip the padded values from the signals

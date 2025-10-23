@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+
 
 def plot_metrics(results):
     """
@@ -19,7 +19,7 @@ def plot_metrics(results):
     for i, metric in enumerate(metrics):
         values = [results[m][metric] for m in methods]
         all_values.extend(values)
-        plt.bar(x + i*width, values, width, label=metric)
+        plt.bar(x + i * width, values, width, label=metric)
 
     # Compute y-limits to zoom in if differences are small
     min_val = min(all_values)
@@ -32,12 +32,13 @@ def plot_metrics(results):
     padding = diff * 0.4  # small padding for clarity
     plt.ylim(min_val - padding, max_val + padding)
 
-    plt.xticks(x + width*(n_metrics-1)/2, methods, rotation=20, ha='right')
+    plt.xticks(x + width * (n_metrics - 1) / 2, methods, rotation=20, ha="right")
     plt.ylabel("Metric Value")
     plt.title("Performance Comparison")
     plt.legend()
     plt.tight_layout()
     plt.show()
+
 
 def plot_first_2_PCs(PCs: np.ndarray, labels: np.ndarray) -> None:
     """
@@ -48,19 +49,20 @@ def plot_first_2_PCs(PCs: np.ndarray, labels: np.ndarray) -> None:
         labels (np.ndarray, optional): array of labels for each data point.
     """
 
-   # Extract first two PCs for visualization
+    # Extract first two PCs for visualization
     pc1 = PCs[:, 0]
     pc2 = PCs[:, 1]
 
     # Plot the first two PCs
     plt.figure(figsize=(8, 6))
-    scatter = plt.scatter(pc1, pc2, c=labels, cmap='tab10', alpha=0.8, edgecolors='k')
+    scatter = plt.scatter(pc1, pc2, c=labels, cmap="tab10", alpha=0.8, edgecolors="k")
     plt.legend(*scatter.legend_elements(), title="Labels", loc="best")
     plt.title("Visualization of First Two Principal Components")
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
-    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.grid(True, linestyle="--", alpha=0.5)
     plt.show()
+
 
 def plot_cm(title: str, true_labels: np.ndarray, predictions: np.ndarray) -> None:
 
