@@ -1,5 +1,6 @@
 from src.utils.load_data import N_CLASSES, N_CHANNELS
 from src.utils.processing import remove_padding
+from src.utils.metrics import compute_accuracy
 
 import numpy as np
 from dtaidistance.dtw import distance_fast
@@ -96,73 +97,32 @@ def concat_folds(folds: np.ndarray, validation_fold: int, k_folds: int) -> np.nd
     return np.concatenate([folds[idx] for idx in range(k_folds) if idx != validation_fold])
 
 
-def get_knn_misclasses(
+def get_knn_predictions(
         k_nn: int, 
         test_data: np.ndarray, 
-        test_labels: np.ndarray, 
         train_data: np.ndarray, 
-        train_labels: np.ndarray) -> int:
+        train_labels: np.ndarray) -> np.ndarray:
     """
-    Counts the number of misclassifications of a given validation fold.
+    Collects the predictions of the test data, given the training data and labels.
 
     Args:
         k_nn (int): the number of nearest neighbors to use.
         test_data (np.ndarray): the test data.
-        test_labels (np.ndarray): the labels of the test data.
         train_data (np.ndarray): the training data.
         train_labels (np.ndarray): the labels of the training
         data.
-    """
-
-    misclassifications = 0
-    for data_point, class_vect in zip(test_data, test_labels):
-        distances = get_distances(data_point, train_data)
-        prediction = predict(k_nn, distances, train_labels)
-
-        # if the predicted class is not the same as the true class
-        if prediction != np.argmax(class_vect):
-            misclassifications += 1
-
-    return misclassifications
-
-
-def get_knn_accuracy(
-        k_nn: int, 
-        k_folds: int, 
-        data_folds: np.ndarray, 
-        label_folds: np.ndarray, 
-        printing: bool) -> float:
-    """
-    Calculates the accuracy, using k-fold cross validation for a given number
-    of nearest neighbors.
-
-    Args:
-        k_nn (int): the number of nearest neighbors.
-        k_folds (int): the number of folds in the k-fold cross validation.
-        data_folds (np.ndarray): the k folds containing the data.
-        label_folds (np.ndarray): the k folds containing the labels.
-        printing (bool): prints the accuracy of each fold, if True.
 
     Returns:
-        float: the accuracy for the given number of nearest neigbors.
+        np.ndarray: list of predictions
     """
-    
-    misclasses = 0
-    for val_fold in range(k_folds):
-        training_data = concat_folds(data_folds, val_fold, k_folds)
-        training_labels = concat_folds(label_folds, val_fold, k_folds)
 
-        validation_data = data_folds[val_fold]
-        validation_labels = label_folds[val_fold]
+    predictions = []
+    for data_point in test_data:
+        distances = get_distances(data_point, train_data)
+        prediction = predict(k_nn, distances, train_labels)
+        predictions.append(prediction)
 
-        fold_misclasses = get_knn_misclasses(k_nn, validation_data, validation_labels, training_data, training_labels)
-        misclasses += fold_misclasses
-
-        if printing:
-            print(f"accuracy on fold {val_fold + 1}:\t {100 - (fold_misclasses / data_folds.shape[1]) * 100}%")
-
-    n_data_points = data_folds.shape[0] * data_folds.shape[1]
-    return 100 - (misclasses / n_data_points) * 100
+    return np.array(predictions)
 
 
 def knn_hyperparameter_search(
@@ -201,34 +161,15 @@ def knn_hyperparameter_search(
         label_folds = np.array(np.split(shuffeled_labels, k_folds))
 
         # get the cross-validation accuracy
-        accuracy = get_knn_accuracy(k_nn, k_folds, data_folds, label_folds, printing=False)
-        accuracies.update({k_nn: accuracy})
-        print(f"validation accuracy for k = {k_nn}:\t {accuracy}%")
+        for val_fold in range(k_folds):
+            training_data = concat_folds(data_folds, val_fold, k_folds)
+            training_labels = concat_folds(label_folds, val_fold, k_folds)
+
+            validation_data = data_folds[val_fold]
+            validation_labels = label_folds[val_fold]
+
+            predictions = get_knn_predictions(k_nn, validation_data, training_data, training_labels)
+            accuracy = compute_accuracy(predictions, np.argmax(validation_labels, axis=1))
+            accuracies.update({k_nn: accuracy})
 
     return accuracies
-
-
-def knn_accuracy(k_nn: int, 
-        test_data: np.ndarray, 
-        test_labels: np.ndarray, 
-        train_data: np.ndarray, 
-        train_labels: np.ndarray) -> float:
-    """
-    Calculates the accuracy of the k-nearest neighbors procedure for a test set
-    and a training set.
-
-    Args:
-        k_nn (int): the number of nearest neighbors to use.
-        test_data (np.ndarray): the test data.
-        test_labels (np.ndarray): the labels of the test data.
-        train_data (np.ndarray): the training data.
-        train_labels (np.ndarray): the labels of the training
-        data.
-    
-    Returns:
-        float: accuracy of the k-nearest neighbors procedure.
-    """
-
-    misclasses = get_knn_misclasses(k_nn, test_data, test_labels, train_data, train_labels)
-    return 100 - (misclasses / len(test_data)) * 100
-

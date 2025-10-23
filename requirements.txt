@@ -2,3 +2,5 @@ numpy
 torch
 black
 isort
+scikit-learn
+matplotlib
