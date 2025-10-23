@@ -70,52 +70,6 @@ def prepare_tensors_for_training(
     
     return X_train_tensor, y_train_tensor, X_val_tensor, y_val_tensor
 
-def compute_accuracy(predictions: torch.Tensor, labels: torch.Tensor) -> float:
-    """
-    Compute classification accuracy.
-    
-    Args:
-        predictions (torch.Tensor): Model predictions.
-        labels (torch.Tensor): True labels.
-    
-    Returns:
-        float: Accuracy as a decimal (0-1).
-    """
-    return (predictions == labels).float().mean().item()
-
-
-def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, num_classes: int):
-    """
-    Compute per-class precision, recall, and F1 score.
-    
-    Args:
-        predictions (torch.Tensor): Model predictions.
-        labels (torch.Tensor): True labels.
-        num_classes (int): Number of classes.
-    
-    Returns:
-        dict: Dictionary with per-class metrics.
-    """
-    metrics = {}
-    
-    for class_idx in range(num_classes):
-        true_positives = ((predictions == class_idx) & (labels == class_idx)).sum().item()
-        false_positives = ((predictions == class_idx) & (labels != class_idx)).sum().item()
-        false_negatives = ((predictions != class_idx) & (labels == class_idx)).sum().item()
-        
-        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0.0
-        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
-        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
-        
-        metrics[class_idx] = {
-            'precision': precision,
-            'recall': recall,
-            'f1': f1,
-            'support': (labels == class_idx).sum().item()
-        }
-    
-    return metrics
-
 
 def train_and_evaluate_random_forest(
     X_train: torch.Tensor,
