@@ -86,7 +86,7 @@ def compute_accuracy(predictions: torch.Tensor, labels: torch.Tensor) -> float:
 
 def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, num_classes: int):
     """
-    Compute per-class precision, recall, and F1 score.
+    Compute per-class and overall precision, recall, F1 score, and accuracy.
     
     Args:
         predictions (torch.Tensor): Model predictions.
@@ -94,10 +94,11 @@ def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, n
         num_classes (int): Number of classes.
     
     Returns:
-        dict: Dictionary with per-class metrics.
+        dict: Dictionary with per-class metrics and overall metrics (including accuracy).
     """
     metrics = {}
-    
+    precisions, recalls, f1s, supports = [], [], [], []
+
     for class_idx in range(num_classes):
         true_positives = ((predictions == class_idx) & (labels == class_idx)).sum().item()
         false_positives = ((predictions == class_idx) & (labels != class_idx)).sum().item()
@@ -106,14 +107,34 @@ def compute_per_class_metrics(predictions: torch.Tensor, labels: torch.Tensor, n
         precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0.0
         recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
         f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        support = (labels == class_idx).sum().item()
         
         metrics[class_idx] = {
             'precision': precision,
             'recall': recall,
             'f1': f1,
-            'support': (labels == class_idx).sum().item()
+            'support': support
         }
-    
+        
+        precisions.append(precision)
+        recalls.append(recall)
+        f1s.append(f1)
+        supports.append(support)
+
+    total_support = sum(supports)
+    total_precision = sum(precisions) / num_classes
+    total_recall = sum(recalls) / num_classes
+    total_f1 = sum(f1s) / num_classes
+
+    accuracy = (predictions == labels).float().mean().item()
+
+    metrics['overall'] = {
+        'accuracy': accuracy,
+        'precision': total_precision,
+        'recall': total_recall,
+        'f1': total_f1
+    }
+
     return metrics
 
 

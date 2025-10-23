@@ -19,6 +19,30 @@ def compute_regression_classifier(feature_vectors: np.ndarray, class_matrix: np.
                 np.matmul(feature_vectors.transpose(), class_matrix)
             )
 
+def compute_ridge_regression_classifier(feature_vectors: np.ndarray, class_matrix: np.ndarray, lambda_reg: float) -> np.ndarray:
+    """
+    Computes a ridge regression classifier (W), given a set of feature vectors (F),
+    a class matrix (V), and a regularization parameter (λ), according to the function W = (FᵀF + λI)⁻¹ FᵀV
+
+    Args:
+        feature_vectors (np.ndarray): a list of feature vectors (F).
+        class_matrix (np.ndarray): a list of one-hot encoded class-label vectors (V).
+        lambda_reg (float): regularization strength (λ).
+
+    Returns:
+        np.ndarray: a ridge regression classifier (W).
+    """
+    num_features = feature_vectors.shape[1]
+    identity = np.eye(num_features)
+
+    # Regularization: add λI to FᵀF before inversion
+    regularized_term = np.matmul(feature_vectors.T, feature_vectors) + lambda_reg * identity
+
+    return np.matmul(
+        np.linalg.inv(regularized_term),
+        np.matmul(feature_vectors.T, class_matrix)
+    )
+
 
 def compute_MSE(regression_classifier: np.ndarray, feature_vectors: np.ndarray, class_matrix: np.ndarray) -> float:
     """
