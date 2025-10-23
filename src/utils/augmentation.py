@@ -2,7 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 from src.utils.config import N_CLASSES
-from src.utils.processing import remove_padding, add_padding
+from src.utils.processing import remove_padding, add_padding, generate_class_matrix
 
 
 def augment_data(
@@ -64,11 +64,6 @@ def augment_data(
 
     # combine with originals
     all_data = np.concatenate([data, np.stack(augmented_samples)], axis=0)
-    all_class_ids = np.concatenate(
-        [
-            np.repeat(np.arange(N_CLASSES), points_per_class),
-            np.array(augmented_class_ids),
-        ]
-    )
+    all_class_ids = generate_class_matrix(all_data.shape[0], N_CLASSES)
 
     return all_data, all_class_ids

@@ -79,6 +79,10 @@ class DecisionTree(nn.Module):
             X, y, feature_idx=feature_idx, threshold=threshold
         )
 
+        # Handle empty splits
+        if len(y_left) == 0 or len(y_right) == 0:
+            return self.TreeNode(value=utl.get_majority_class(y))
+
         # recurse
         left_child = self.fit(X_left, y_left, depth + 1)
         right_child = self.fit(X_right, y_right, depth + 1)
