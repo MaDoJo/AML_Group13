@@ -44,7 +44,7 @@ def augment_data(
         class_data = data[start:end]
 
         for x in class_data:
-            x = remove_padding(x)
+            x = remove_padding(x).transpose()
             # 1. Additive Gaussian noise
             noise = np.random.normal(0, noise_std * np.std(x), x.shape)
             x_noise = add_padding(x + noise)
@@ -55,9 +55,9 @@ def augment_data(
 
             # 3. Time warping
             factor = np.random.uniform(*time_warp_range)
-            t_original = np.arange(T)
+            t_original = np.arange(x.shape[0])
             f = interp1d(t_original, x, axis=0, fill_value="extrapolate")
-            x_warped = add_padding(f(np.linspace(0, T - 1, T)))
+            x_warped = add_padding(f(np.linspace(0, x.shape[0] - 1, x.shape[0])))
 
             augmented_samples.extend([x_noise, x_scaled, x_warped])
             augmented_class_ids.extend([class_id] * 3)

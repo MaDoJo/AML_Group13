@@ -61,7 +61,7 @@ def load_data(
         padded_data_points.append(padded_arr)
 
     # put the padded signals in a numpy array
-    data_numpy_array = np.stack(padded_data_points)
+    data_numpy_array = np.array(padded_data_points)
 
     print(f"Successfully created a NumPy array with shape: {data_numpy_array.shape}")
     return data_numpy_array
