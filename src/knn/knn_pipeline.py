@@ -163,6 +163,7 @@ def knn_hyperparameter_search(
         label_folds = np.array(np.split(shuffeled_labels, k_folds))
 
         # get the cross-validation accuracy
+        fold_accuracies = []
         for val_fold in range(k_folds):
             training_data = concat_folds(data_folds, val_fold, k_folds)
             training_labels = concat_folds(label_folds, val_fold, k_folds)
@@ -176,6 +177,8 @@ def knn_hyperparameter_search(
             accuracy = compute_accuracy(
                 predictions, np.argmax(validation_labels, axis=1)
             )
-            accuracies.update({k_nn: accuracy})
+            fold_accuracies.append(accuracy)
+            
+        accuracies[k_nn] = np.mean(fold_accuracies)
 
     return accuracies
