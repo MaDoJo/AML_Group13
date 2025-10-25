@@ -105,6 +105,8 @@ def compute_per_class_metrics(
     metrics = {}
     precisions, recalls, f1s, supports = [], [], [], []
 
+    total_true_positives, total_false_positives, total_false_negatives = 0, 0, 0
+
     for class_idx in range(num_classes):
         true_positives = (
             ((predictions == class_idx) & (labels == class_idx)).sum().item()
@@ -115,6 +117,10 @@ def compute_per_class_metrics(
         false_negatives = (
             ((predictions != class_idx) & (labels == class_idx)).sum().item()
         )
+
+        total_true_positives += true_positives
+        total_false_positives += false_positives
+        total_false_negatives += false_negatives
 
         precision = (
             true_positives / (true_positives + false_positives)
@@ -144,19 +150,20 @@ def compute_per_class_metrics(
         recalls.append(recall)
         f1s.append(f1)
         supports.append(support)
+    
+    precisions, recalls, f1s, supports = np.array(precisions), np.array(recalls), np.array(f1s), np.array(supports)
+    weighted_precision = np.average(precisions, weights=supports)
+    weighted_recall = np.average(recalls, weights=supports)
+    weighted_f1 = np.average(f1s, weights=supports)
 
-    total_support = sum(supports)
-    total_precision = sum(precisions) / num_classes
-    total_recall = sum(recalls) / num_classes
-    total_f1 = sum(f1s) / num_classes
 
     accuracy = (predictions == labels).float().mean().item()
 
     metrics["overall"] = {
         "accuracy": accuracy,
-        "precision": total_precision,
-        "recall": total_recall,
-        "f1": total_f1,
+        "precision": weighted_precision,
+        "recall": weighted_recall,
+        "f1": weighted_f1,
     }
 
     return metrics
