@@ -190,7 +190,7 @@ def train_and_evaluate_random_forest(
         visualize (bool): Whether to show visualization plots.
 
     Returns:
-        tuple: (model, train_accuracy, test_accuracy, cv_results)
+        tuple: (model, train_accuracy, test_accuracy, cv_results, test_predictions)
     """
     model = RandomForest(n_trees=n_trees, max_depth=max_depth)
     model.train_forest(X_train, y_train)
@@ -203,4 +203,4 @@ def train_and_evaluate_random_forest(
     # compute per-class metrics
     metrics = compute_per_class_metrics(test_predictions, y_test, N_CLASSES)
 
-    return model, test_accuracy, metrics
+    return model, test_accuracy, metrics, test_predictions

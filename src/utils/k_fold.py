@@ -20,6 +20,15 @@ def get_k_folds(
             Each tuple contains:
             (X_train, y_train, X_val, y_val)
     """
+    if k == len(X): # Leave-One-Out (no need to stratify)
+        folds = []
+        for i in range(len(X)):
+            X_train = np.delete(X, i, axis=0)
+            y_train = np.delete(y, i, axis=0)
+            X_val = X[i:i+1]
+            y_val = y[i:i+1]
+            folds.append((X_train, y_train, X_val, y_val))
+        return folds
     # Handle one-hot labels
     if y.ndim > 1 and y.shape[1] > 1:
         y_classes = np.argmax(y, axis=1)
