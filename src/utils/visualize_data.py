@@ -179,7 +179,7 @@ def visualize_PC_variance(singular_values: np.ndarray, log: bool = False) -> Non
     plt.tight_layout()
 
 
-def show_search_results(results: dict) -> None:
+def show_search_results(results: dict, file_name: str = "saved_figure.png") -> None:
     """
     Visualizes the results of the hyperparameter search. Plots the accuracies of
     1 through 10 nearest neighbors for two different local distance measures in
@@ -189,6 +189,7 @@ def show_search_results(results: dict) -> None:
     Args:
         results (dict): results of the knn hyperparameter search with the structure
         {k_nn: accuracy}.
+        file_name (str): the name of the file to save the resulting plot to.
     """
 
     plt.figure(figsize=(12, 6))
@@ -201,3 +202,5 @@ def show_search_results(results: dict) -> None:
     plt.legend(loc="upper right", ncol=4, fontsize="small")
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
+
+    plt.savefig(file_name)
