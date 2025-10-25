@@ -20,31 +20,35 @@ def get_k_folds(
             Each tuple contains:
             (X_train, y_train, X_val, y_val)
     """
-    unique_classes = np.unique(y)
+    # Handle one-hot labels
+    if y.ndim > 1 and y.shape[1] > 1:
+        y_classes = np.argmax(y, axis=1)
+    else:
+        y_classes = y
+
+    unique_classes = np.unique(y_classes)
     fold_indices = [[] for _ in range(k)]
 
-    # Distribute samples of each class across folds
+    # Distribute samples of each class evenly across folds
     for class_label in unique_classes:
-        class_indices = np.where(y == class_label)[0]
+        class_indices = np.flatnonzero(y_classes == class_label)
         np.random.shuffle(class_indices)
-
         for i, idx in enumerate(class_indices):
-            fold_indices[i % k].append(idx)
+            fold_indices[i % k].append(int(idx))  # ensure int
 
     # Shuffle indices within each fold
     for f in range(k):
         np.random.shuffle(fold_indices[f])
+        fold_indices[f] = np.array(fold_indices[f], dtype=int)
 
+    # Build folds
     folds = []
     for fold in range(k):
-        val_indices = fold_indices[fold]
-        train_indices = np.concatenate([fold_indices[i] for i in range(k) if i != fold])
+        val_idx = fold_indices[fold]
+        train_idx = np.concatenate(
+            [fold_indices[i] for i in range(k) if i != fold], dtype=int
+        )
 
-        X_train_fold = X[train_indices]
-        y_train_fold = y[train_indices]
-        X_val_fold = X[val_indices]
-        y_val_fold = y[val_indices]
-
-        folds.append((X_train_fold, y_train_fold, X_val_fold, y_val_fold))
+        folds.append((X[train_idx], y[train_idx], X[val_idx], y[val_idx]))
 
     return folds
