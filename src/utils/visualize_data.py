@@ -84,13 +84,7 @@ def visualize_class_means(data: np.ndarray) -> None:
         data (np.ndarray): All data points from the original training data.
     """
 
-    points_per_class = TRAIN_DATA_POINTS // N_CLASSES  # Should be 30
-
-    if data.shape[0] != TRAIN_DATA_POINTS:
-        print(
-            f"Warning: Expected {TRAIN_DATA_POINTS} data points, but got \
-              {data.shape[0]}."
-        )
+    points_per_class = data.shape[0] // N_CLASSES
 
     # create the figure and 3x3 subplots, with the same x and y-axes
     fig, axes = plt.subplots(
