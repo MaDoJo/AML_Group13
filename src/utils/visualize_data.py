@@ -204,3 +204,35 @@ def show_search_results(results: dict, file_name: str = "saved_figure.png") -> N
     plt.tight_layout()
 
     plt.savefig(file_name)
+
+def plot_data_aug_comparison(original: np.ndarray, noise1: np.ndarray, noise2: np.ndarray, noise3: np.ndarray, file_name: str = "results/data_aug.png") -> None:
+    """
+    Plots a comparison of the original data point and its three augmented versions:
+    with noise, scaled, and time-warped. Each version is displayed in a separate subplot.
+
+    Args:
+        original (np.ndarray): The original data point.
+        noise (np.ndarray): The data point with added Gaussian noise.
+        scaled (np.ndarray): The data point after random scaling.
+        warped (np.ndarray): The time-warped version of the data point.
+    """
+    # Plotting all 4 versions side by side
+    plt.figure(figsize=(14, 8))
+
+    labels = ["Original", "Noise 1", "Noise 2", "Noise 3"]
+    samples = [original, noise1, noise2, noise3]
+
+    for i, sample in enumerate(samples):
+        plt.subplot(2, 2, i + 1)
+        last_row = np.nonzero(sample)[0][-1] + 1
+        x_axis = np.arange(last_row)
+        for channel in range(sample.shape[1]):
+            plt.plot(x_axis, sample[:last_row, channel])
+        plt.title(labels[i])
+        plt.xlabel("Time Step")
+        plt.ylabel("Cepstrum Value")
+        plt.grid(True, linestyle="--", alpha=0.5)
+
+    plt.tight_layout()
+    plt.savefig(file_name)
+    plt.show()
