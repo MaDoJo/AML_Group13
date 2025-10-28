@@ -242,3 +242,26 @@ def show_lambda_search_results(results: Dict[float, float], file_name: str = "re
     plt.close()
 
     print(f"Lambda search saved to {file_name}")
+
+def show_knn_search_results(results: Dict[float, float], file_name: str = "results/hyperparameter_knn.png") -> None:
+    """
+    Visualizes the results of the knn k hyperparameter search.
+    Plots the mean validation accuracy for each tested k value.
+
+    Args:
+        results (Dict[float, float]): Dictionary mapping k values to mean accuracies.
+        file_name (str): File path to save the resulting plot.
+    """
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(list(results.keys()), list(results.values()), marker='o')
+    
+    plt.title("K-NN Hyperparameter Search", fontsize=14)
+    plt.ylabel("Validation Accuracy", fontsize=12)
+    plt.xlabel("K value", fontsize=12)
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.tight_layout()
+    plt.savefig(file_name)
+    plt.close()
+
+    print(f"K-NN search saved to {file_name}")

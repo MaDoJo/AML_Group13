@@ -70,14 +70,14 @@ def get_k_folds(
     return folds
 
 
-def reshape_fold(fold, n_samples: int, data_length: int) -> np.ndarray:
-    return np.reshape(fold, (len(fold) * (n_samples + 1), data_length))
+def reshape_fold(fold, n_samples: int, data_shape: Tuple) -> np.ndarray:
+    return np.reshape(fold, (len(fold) * (n_samples + 1), *data_shape))
 
 
 def reshape_folds(
     folds: List[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]],
     n_samples: int,
-    feature_vector_length: int
+    data_shape: Tuple[int, ...],
 ) -> List[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
     """
     Reshape the folds to account for data augmentation.
@@ -89,10 +89,10 @@ def reshape_folds(
     new_folds = []
     for fold in folds:
         train_folds, train_labels, val_folds, val_labels = fold
-        train_folds = reshape_fold(train_folds, n_samples, feature_vector_length)
-        train_labels = reshape_fold(train_labels, n_samples, N_CLASSES)
-        val_folds = reshape_fold(val_folds, n_samples, feature_vector_length)
-        val_labels = reshape_fold(val_labels, n_samples, N_CLASSES)
+        train_folds = reshape_fold(train_folds, n_samples, data_shape)
+        train_labels = reshape_fold(train_labels, n_samples, (N_CLASSES,))
+        val_folds = reshape_fold(val_folds, n_samples, data_shape)
+        val_labels = reshape_fold(val_labels, n_samples, (N_CLASSES,))
         new_folds.append((train_folds, train_labels, val_folds, val_labels))
 
     return new_folds

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from dtaidistance.dtw import distance_fast
@@ -6,6 +6,9 @@ from dtaidistance.dtw import distance_fast
 from src.utils.config import N_CHANNELS, N_CLASSES
 from src.utils.metrics import compute_accuracy
 from src.utils.processing import remove_padding
+from src.utils.k_fold import get_k_folds, reshape_folds
+from src.random_forest.evaluate import compute_per_class_metrics
+import torch
 
 
 def independent_dtw(signal1: np.ndarray, signal2: np.ndarray) -> float:
@@ -20,6 +23,13 @@ def independent_dtw(signal1: np.ndarray, signal2: np.ndarray) -> float:
     Returns:
         float: independent Dynamic Time Warping distance.
     """
+
+    # ensure the shape is (time_steps, n_channels)
+    #if signal1.shape[0] == N_CHANNELS:
+    #    signal1 = signal1.T
+    #if signal2.shape[0] == N_CHANNELS:
+    #    signal2 = signal2.T
+
 
     signal1 = remove_padding(signal1)
     signal2 = remove_padding(signal2)
@@ -127,6 +137,41 @@ def get_knn_predictions(
         predictions.append(prediction)
 
     return np.array(predictions)
+
+def predict_and_evaluate_knn(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    X_test: np,
+    y_test: np.ndarray,
+    k_nn: int,
+):
+    """
+    Given a k_nn evaluate predictions.
+
+    Args:
+        X_train (np.ndarray): Training data.
+        y_train (np.ndarray): Training labels.
+        X_test (np.ndarray): Test data.
+        y_test (np.ndarray): Test labels.
+        k_nn (int): Number of nearest neighbors.
+
+    Returns:
+        test_accuracy (float): Accuracy on test data.
+        metrics (dict): Per-class metrics.
+        test_predictions (np.ndarray): Predictions on test data.
+    """
+    test_predictions = get_knn_predictions(k_nn, X_test, X_train, y_train)
+
+    # compute per-class metrics
+    metrics = compute_per_class_metrics(
+        torch.from_numpy(test_predictions), 
+        torch.from_numpy(np.argmax(y_test, axis=1)), 
+        N_CLASSES
+    )
+    test_accuracy = metrics['overall']['accuracy']
+
+
+    return test_accuracy, metrics, test_predictions
 
 
 def knn_hyperparameter_search(
