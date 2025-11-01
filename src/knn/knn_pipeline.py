@@ -1,9 +1,45 @@
-from src.utils.loadData import load_data, TRAIN_DATA_POINTS, N_CLASSES
-from src.utils.processing import generate_class_matrix
-from src.knn.DynamicTimeWarping import DTW
+from typing import List, Tuple
 
 import numpy as np
-from typing import List
+from dtaidistance.dtw import distance_fast
+
+from src.utils.config import N_CHANNELS, N_CLASSES
+from src.utils.metrics import compute_accuracy
+from src.utils.processing import remove_padding
+from src.utils.k_fold import get_k_folds, reshape_folds
+from src.random_forest.evaluate import compute_per_class_metrics
+import torch
+
+
+def independent_dtw(signal1: np.ndarray, signal2: np.ndarray) -> float:
+    """
+    Calculates the independent Dynamic Time Warping distance (DTW_i). This is
+    done by summing the DTW distances of all channels.
+
+    Args:
+        signal1 (np.ndarray): first signal used to compare DTW_i distance with.
+        signal2 (np.ndarray): second signal used to compare DTW_i distance with.
+
+    Returns:
+        float: independent Dynamic Time Warping distance.
+    """
+
+    # ensure the shape is (time_steps, n_channels)
+    #if signal1.shape[0] == N_CHANNELS:
+    #    signal1 = signal1.T
+    #if signal2.shape[0] == N_CHANNELS:
+    #    signal2 = signal2.T
+
+
+    signal1 = remove_padding(signal1)
+    signal2 = remove_padding(signal2)
+
+    dtw_i = 0
+    for channel in range(N_CHANNELS):
+        dtw_i += distance_fast(signal1[channel], signal2[channel])
+
+    return dtw_i
+
 
 def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[float]:
     """
@@ -11,7 +47,7 @@ def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[flo
     other data points in the training data.
 
     Args:
-        data_point (np.ndarray): the data point to measure the DTW distances of 
+        data_point (np.ndarray): the data point to measure the DTW distances of
         all training data points with.
         training_data (np.ndarray): the training data points.
 
@@ -19,20 +55,23 @@ def get_distances(data_point: np.ndarray, training_data: np.ndarray) -> List[flo
         List[float]: a list of DTW distances from data_point to all data points
         in training_data
     """
-    return [DTW(data_point, training_data[idx]) for idx in range(len(training_data))]
+    return [
+        independent_dtw(data_point, training_data[idx])
+        for idx in range(len(training_data))
+    ]
 
 
 def predict(k_nn: int, distances: List[float], labels: np.ndarray) -> int:
     """
-    Predicts the class of a data point, given the Dynamic Time Warp (DTW) 
-    distances to all points in the training data, from that data point. The 
-    labels of the k nearest neighbors are collected, and the most frequently 
-    collected class-label is returned as the prediction. Ties are broken in 
+    Predicts the class of a data point, given the Dynamic Time Warp (DTW)
+    distances to all points in the training data, from that data point. The
+    labels of the k nearest neighbors are collected, and the most frequently
+    collected class-label is returned as the prediction. Ties are broken in
     favor of the class with the lowest index in the class vector.
 
     Args:
         k_nn (int): the number of nearest neighbors to determine the class of.
-        distances (List[float]): the DTW distances between one data point and 
+        distances (List[float]): the DTW distances between one data point and
         all data points in the training data.
         labels (np.ndarray): list of all labels (class-vectors), corresponding
         to the training data.
@@ -69,115 +108,91 @@ def concat_folds(folds: np.ndarray, validation_fold: int, k_folds: int) -> np.nd
     Returns:
         np.ndarray: an array with all folds used for training.
     """
-    return np.concatenate([folds[idx] for idx in range(k_folds) if idx != validation_fold])
+    return np.concatenate(
+        [folds[idx] for idx in range(k_folds) if idx != validation_fold]
+    )
 
 
-def get_knn_misclasses(
-        k_nn: int, 
-        test_data: np.ndarray, 
-        test_labels: np.ndarray, 
-        train_data: np.ndarray, 
-        train_labels: np.ndarray) -> int:
+def get_knn_predictions(
+    k_nn: int, test_data: np.ndarray, train_data: np.ndarray, train_labels: np.ndarray
+) -> np.ndarray:
     """
-    Counts the number of misclassifications of a given validation fold.
+    Collects the predictions of the test data, given the training data and labels.
 
     Args:
         k_nn (int): the number of nearest neighbors to use.
         test_data (np.ndarray): the test data.
-        test_labels (np.ndarray): the labels of the test data.
         train_data (np.ndarray): the training data.
         train_labels (np.ndarray): the labels of the training
         data.
-    """
-
-    misclassifications = 0
-    for data_point, class_vect in zip(test_data, test_labels):
-        distances = get_distances(data_point, train_data)
-        prediction = predict(k_nn, distances, train_labels)
-
-        # if the predicted class is not the same as the true class
-        if prediction != np.argmax(class_vect):
-            misclassifications += 1
-
-    return misclassifications
-
-
-def get_knn_accuracy(
-        k_nn: int, 
-        k_folds: int, 
-        data_folds: np.ndarray, 
-        label_folds: np.ndarray, 
-        printing: bool) -> float:
-    """
-    Calculates the accuracy, using k-fold cross validation for a given number
-    of nearest neighbors.
-
-    Args:
-        k_nn (int): the number of nearest neighbors.
-        k_folds (int): the number of folds in the k-fold cross validation.
-        data_folds (np.ndarray): the k folds containing the data.
-        label_folds (np.ndarray): the k folds containing the labels.
-        printing (bool): prints the accuracy of each fold, if True.
 
     Returns:
-        float: the accuracy for the given number of nearest neigbors.
+        np.ndarray: list of predictions
     """
-    
-    misclasses = 0
-    for val_fold in range(k_folds):
-        training_data = concat_folds(data_folds, val_fold, k_folds)
-        training_labels = concat_folds(label_folds, val_fold, k_folds)
 
-        validation_data = data_folds[val_fold]
-        validation_labels = label_folds[val_fold]
+    predictions = []
+    for data_point in test_data:
+        distances = get_distances(data_point, train_data)
+        prediction = predict(k_nn, distances, train_labels)
+        predictions.append(prediction)
 
-        fold_misclasses = get_knn_misclasses(k_nn, validation_data, validation_labels, training_data, training_labels)
-        misclasses += fold_misclasses
+    return np.array(predictions)
 
-        if printing:
-            print(f"accuracy on fold {val_fold + 1}:\t {100 - (fold_misclasses / data_folds.shape[1]) * 100}%")
-
-    n_data_points = data_folds.shape[0] * data_folds.shape[1]
-    return 100 - (misclasses / n_data_points) * 100
-
-
-
-def save_results(accuracies: dict, path: str) -> None:
+def predict_and_evaluate_knn(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    X_test: np,
+    y_test: np.ndarray,
+    k_nn: int,
+):
     """
-    Writes results to a file.
+    Given a k_nn evaluate predictions.
 
     Args:
-        accuracies (dict): dictionary with the structure {k_nn: accuracy}.
-        path (str): path where the results will be stored.
+        X_train (np.ndarray): Training data.
+        y_train (np.ndarray): Training labels.
+        X_test (np.ndarray): Test data.
+        y_test (np.ndarray): Test labels.
+        k_nn (int): Number of nearest neighbors.
+
+    Returns:
+        test_accuracy (float): Accuracy on test data.
+        metrics (dict): Per-class metrics.
+        test_predictions (np.ndarray): Predictions on test data.
     """
+    test_predictions = get_knn_predictions(k_nn, X_test, X_train, y_train)
 
-    with open(path, "w") as f:
-        for knn, acc in accuracies.items():
-            f.write(f"{knn} nearest neighbors generated {acc}% accuracy\n")
+    # compute per-class metrics
+    metrics = compute_per_class_metrics(
+        torch.from_numpy(test_predictions), 
+        torch.from_numpy(np.argmax(y_test, axis=1)), 
+        N_CLASSES
+    )
+    test_accuracy = metrics['overall']['accuracy']
 
-        f.write(str(accuracies))
+
+    return test_accuracy, metrics, test_predictions
 
 
 def knn_hyperparameter_search(
-        data: np.ndarray, 
-        labels: np.ndarray, 
-        k_to_search: range, 
-        k_folds: int, 
-        results_location: str) -> None:
+    data: np.ndarray, labels: np.ndarray, k_to_search: range, k_folds: int
+) -> dict:
     """
     Performs hyperparameter search on the number of nearest neighbors to use.
     Results are stored in a text file at "results_location". Validation is
     done with k-fold cross validation.
 
     Args:
-        data (np.ndarray): list of data points. Each data point is a time 
+        data (np.ndarray): list of data points. Each data point is a time
         series with 12 channels of cepstrum coefficients.
         labels (np.ndarray): list of one-hot encoded class-labels.
         k_to_search (range): the range of k-nearest-neighbors (hyperparameter)
         to search.
         k_folds (int): the number of folds used for the k-fold cross validation.
-        results_location (str): path where the results of the hyperparameter
-        results will be stored.
+
+    Returns:
+        dict: results of the hyperparameter search with the structure
+        {k_nn: accuracy}.
     """
 
     idxs = np.arange(len(data))
@@ -193,44 +208,22 @@ def knn_hyperparameter_search(
         label_folds = np.array(np.split(shuffeled_labels, k_folds))
 
         # get the cross-validation accuracy
-        accuracy = get_knn_accuracy(k_nn, k_folds, data_folds, label_folds, printing=False)
-        accuracies.update({k_nn: accuracy})
-        print(f"validation accuracy for k = {k_nn}:\t {accuracy}%")
+        fold_accuracies = []
+        for val_fold in range(k_folds):
+            training_data = concat_folds(data_folds, val_fold, k_folds)
+            training_labels = concat_folds(label_folds, val_fold, k_folds)
 
-    save_results(accuracies, results_location)
+            validation_data = data_folds[val_fold]
+            validation_labels = label_folds[val_fold]
 
+            predictions = get_knn_predictions(
+                k_nn, validation_data, training_data, training_labels
+            )
+            accuracy = compute_accuracy(
+                predictions, np.argmax(validation_labels, axis=1)
+            )
+            fold_accuracies.append(accuracy)
+            
+        accuracies[k_nn] = np.mean(fold_accuracies)
 
-def knn_accuracy(k_nn: int, 
-        test_data: np.ndarray, 
-        test_labels: np.ndarray, 
-        train_data: np.ndarray, 
-        train_labels: np.ndarray) -> int:
-    """
-    Calculates the accuracy of the k-nearest neighbors procedure for a test set
-    and a training set.
-
-    Args:
-        k_nn (int): the number of nearest neighbors to use.
-        test_data (np.ndarray): the test data.
-        test_labels (np.ndarray): the labels of the test data.
-        train_data (np.ndarray): the training data.
-        train_labels (np.ndarray): the labels of the training
-        data.
-    """
-
-    misclasses = get_knn_misclasses(k_nn, test_data, test_labels, train_data, train_labels)
-    return 100 - (misclasses / len(test_data)) * 100
-
-if __name__ == "__main__":
-    train_data = load_data("data/ae.train", num_data_points=TRAIN_DATA_POINTS)
-    class_matrix = generate_class_matrix(TRAIN_DATA_POINTS, N_CLASSES)
-    k_to_search = range(1, 11)
-    path = "search_results5.txt"
-
-    # leave-one-out cross validation
-    knn_hyperparameter_search(
-        data=train_data, 
-        labels=class_matrix, 
-        k_to_search=k_to_search, 
-        k_folds=TRAIN_DATA_POINTS, 
-        results_location=path)
+    return accuracies

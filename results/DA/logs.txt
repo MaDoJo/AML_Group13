@@ -1,0 +1,282 @@
+Set random seed to 42
+Warning: Expected 270 data points, but got               1080.
+
+Linear Regression CV
+
+Best lambda: 0.1
+Best Mean Validation Accuracy: 0.9833333333333333
+Ridge Test MSE:  0.47214178293936876
+Ridge Test Mismatch:  0.08378378378378379
+Ridge Reg Accuracy (1-mismatch):  0.9162162162162162
+Ridge Reg Accuracy (from compute_per_class_metrics()):  0.9162161946296692
+Lambda search saved to results/hyperparameter_ridge.png
+
+Random Forest CV
+
+n_trees: 50, max_depth: 5 
+Validation accuracy: 0.9907407164573669
+
+n_trees: 50, max_depth: 5 
+Validation accuracy: 0.9814814925193787
+
+n_trees: 50, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 5 
+Validation accuracy: 0.9814814925193787
+
+n_trees: 50, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 50, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 5 
+Validation accuracy: 0.9907407164573669
+
+n_trees: 100, max_depth: 5 
+Validation accuracy: 0.9953703880310059
+
+n_trees: 100, max_depth: 5 
+Validation accuracy: 0.9953703880310059
+
+n_trees: 100, max_depth: 5 
+Validation accuracy: 0.9907407164573669
+
+n_trees: 100, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 100, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 5 
+Validation accuracy: 0.9907407164573669
+
+n_trees: 150, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 150, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 5 
+Validation accuracy: 0.9907407164573669
+
+n_trees: 200, max_depth: 5 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 10 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 15 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 20 
+Validation accuracy: 1.0
+
+n_trees: 200, max_depth: 20 
+Validation accuracy: 1.0
+
+Best n_trees: 50, best max_depth: 10 
+Best Mean Accuracy:  1.0
+Forest CV resutls: {(50, 5): np.float64(0.9907407402992249), (50, 10): np.float64(1.0), (50, 15): np.float64(1.0), (50, 20): np.float64(1.0), (100, 5): np.float64(0.9944444417953491), (100, 10): np.float64(1.0), (100, 15): np.float64(1.0), (100, 20): np.float64(1.0), (150, 5): np.float64(0.9981481432914734), (150, 10): np.float64(1.0), (150, 15): np.float64(1.0), (150, 20): np.float64(1.0), (200, 5): np.float64(0.9981481432914734), (200, 10): np.float64(1.0), (200, 15): np.float64(1.0), (200, 20): np.float64(1.0)}
+Test Accuracy:  0.9432432651519775
+Test Metrics:
+0: {'precision': 1.0, 'recall': 0.9354838709677419, 'f1': 0.9666666666666666, 'support': 31}
+1: {'precision': 0.9166666666666666, 'recall': 0.9428571428571428, 'f1': 0.9295774647887323, 'support': 35}
+2: {'precision': 0.9540229885057471, 'recall': 0.9431818181818182, 'f1': 0.9485714285714286, 'support': 88}
+3: {'precision': 0.975609756097561, 'recall': 0.9090909090909091, 'f1': 0.9411764705882352, 'support': 44}
+4: {'precision': 0.9354838709677419, 'recall': 1.0, 'f1': 0.9666666666666666, 'support': 29}
+5: {'precision': 0.96, 'recall': 1.0, 'f1': 0.9795918367346939, 'support': 24}
+6: {'precision': 1.0, 'recall': 0.95, 'f1': 0.9743589743589743, 'support': 40}
+7: {'precision': 0.9375, 'recall': 0.9, 'f1': 0.9183673469387755, 'support': 50}
+8: {'precision': 0.8, 'recall': 0.9655172413793104, 'f1': 0.8750000000000001, 'support': 29}
+overall: {'accuracy': 0.9432432651519775, 'precision': np.float64(0.946508696887017), 'recall': np.float64(0.9432432432432433), 'f1': np.float64(0.9437816002451461)}
+Heatmap saved to results/hyperparameter_rf.png
+
+KNN CV
+
+Accuracy:	0.968%
+Confusion matrix saved to results/ridge_cm.png
+Confusion matrix saved to results/knn_cm.png
+Confusion matrix saved to results/forest_cm.png
+Metrics comparison saved to results/model_comparison.png
+Per-class f1 metrics saved to results/per_class_F1.png
+Per-class precision metrics saved to results/per_class_precision.png
+Per-class recall metrics saved to results/per_class_recall.png

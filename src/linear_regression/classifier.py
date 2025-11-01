@@ -1,8 +1,11 @@
 import numpy as np
 
-def compute_regression_classifier(feature_vectors: np.ndarray, class_matrix: np.ndarray) -> np.ndarray:
+
+def compute_regression_classifier(
+    feature_vectors: np.ndarray, class_matrix: np.ndarray
+) -> np.ndarray:
     """
-    Computes a linear regression classifier (W), given a set of feature vectors (F) 
+    Computes a linear regression classifier (W), given a set of feature vectors (F)
     and a class matrix (V) according to the function W = (F'F)^-1 (F'V).
 
     Args:
@@ -13,14 +16,44 @@ def compute_regression_classifier(feature_vectors: np.ndarray, class_matrix: np.
         np.ndarray: a linear regression classifier (W).
     """
     return np.matmul(
-                np.linalg.inv(
-                    np.matmul(feature_vectors.transpose(), feature_vectors)
-                ), 
-                np.matmul(feature_vectors.transpose(), class_matrix)
-            )
+        np.linalg.inv(np.matmul(feature_vectors.transpose(), feature_vectors)),
+        np.matmul(feature_vectors.transpose(), class_matrix),
+    )
 
 
-def compute_MSE(regression_classifier: np.ndarray, feature_vectors: np.ndarray, class_matrix: np.ndarray) -> float:
+def compute_ridge_regression_classifier(
+    feature_vectors: np.ndarray, class_matrix: np.ndarray, lambda_reg: float
+) -> np.ndarray:
+    """
+    Computes a ridge regression classifier (W), given a set of feature vectors (F),
+    a class matrix (V), and a regularization parameter (λ), according to the function W = (FᵀF + λI)⁻¹ FᵀV
+
+    Args:
+        feature_vectors (np.ndarray): a list of feature vectors (F).
+        class_matrix (np.ndarray): a list of one-hot encoded class-label vectors (V).
+        lambda_reg (float): regularization strength (λ).
+
+    Returns:
+        np.ndarray: a ridge regression classifier (W).
+    """
+    num_features = feature_vectors.shape[1]
+    identity = np.eye(num_features)
+
+    # Regularization: add λI to FᵀF before inversion
+    regularized_term = (
+        np.matmul(feature_vectors.T, feature_vectors) + lambda_reg * identity
+    )
+
+    return np.matmul(
+        np.linalg.inv(regularized_term), np.matmul(feature_vectors.T, class_matrix)
+    )
+
+
+def compute_MSE(
+    regression_classifier: np.ndarray,
+    feature_vectors: np.ndarray,
+    class_matrix: np.ndarray,
+) -> float:
     """
     Computes the Mean Squared Error (MSE) given a linear regression classifier,
     a set of feature vectors and a class matrix, based on the error between the
@@ -34,7 +67,16 @@ def compute_MSE(regression_classifier: np.ndarray, feature_vectors: np.ndarray, 
     Returns:
         float: the MSE.
     """
-    return sum([np.linalg.norm(class_matrix[idx] - np.matmul(regression_classifier.transpose(), feature_vector))**2 for idx, feature_vector in enumerate(feature_vectors)]) / len(feature_vectors)
+    return sum(
+        [
+            np.linalg.norm(
+                class_matrix[idx]
+                - np.matmul(regression_classifier.transpose(), feature_vector)
+            )
+            ** 2
+            for idx, feature_vector in enumerate(feature_vectors)
+        ]
+    ) / len(feature_vectors)
 
 
 def compute_mismatch(regression_classifier, feature_vectors, class_matrix):
@@ -54,7 +96,15 @@ def compute_mismatch(regression_classifier, feature_vectors, class_matrix):
         float: the fraction of mis-classified data points.
     """
     return sum(
-        [0 if np.argmax(class_matrix[idx]) == np.argmax(np.matmul(regression_classifier.transpose(), feature_vector)) 
-           else 1 
-           for idx, feature_vector in enumerate(feature_vectors)]
-                ) / len(feature_vectors)
+        [
+            (
+                0
+                if np.argmax(class_matrix[idx])
+                == np.argmax(
+                    np.matmul(regression_classifier.transpose(), feature_vector)
+                )
+                else 1
+            )
+            for idx, feature_vector in enumerate(feature_vectors)
+        ]
+    ) / len(feature_vectors)

@@ -1,0 +1,8 @@
+numpy
+torch
+black
+isort
+scikit-learn
+matplotlib
+dtaidistance        # for DTW
+seaborn

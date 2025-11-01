@@ -4,12 +4,13 @@ import torch
 from torch import Tensor, nn
 from torch.types import Number
 
-import random_forest.utils as utl
-
+import src.random_forest.utils as utl
 
 
 class DecisionTree(nn.Module):
-    def __init__(self, n_features_eval: Optional[int] = None, max_depth: Optional[int] = None):
+    def __init__(
+        self, n_features_eval: Optional[int] = None, max_depth: Optional[int] = None
+    ):
         """
         Initialise a decision tree.
 
@@ -19,8 +20,9 @@ class DecisionTree(nn.Module):
         """
         super().__init__()
         self.n_features_eval = n_features_eval
+        self.max_depth = max_depth
         self.tree = None
-    
+
     class TreeNode:
         def __init__(
             self,
@@ -58,10 +60,9 @@ class DecisionTree(nn.Module):
         Returns
             (TreeNode): Tree node fit to the data.
         """
-        if (
-            len(y.unique()) == 1 or  # Leaf if all labels the same
-            (self.max_depth is not None and depth >= self.max_depth) # If max_depth reached
-        ):
+        if len(y.unique()) == 1 or (  # Leaf if all labels the same
+            self.max_depth is not None and depth >= self.max_depth
+        ):  # If max_depth reached
             return self.TreeNode(value=utl.get_majority_class(y))
 
         num_features_data = X.shape[1]
@@ -77,6 +78,10 @@ class DecisionTree(nn.Module):
         X_left, y_left, X_right, y_right = utl.split_data(
             X, y, feature_idx=feature_idx, threshold=threshold
         )
+
+        # Handle empty splits
+        if len(y_left) == 0 or len(y_right) == 0:
+            return self.TreeNode(value=utl.get_majority_class(y))
 
         # recurse
         left_child = self.fit(X_left, y_left, depth + 1)

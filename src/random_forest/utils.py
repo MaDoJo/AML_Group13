@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 import torch
 from torch import Tensor
@@ -106,7 +106,7 @@ def find_best_feature_split(
     N = len(y)
 
     for i in range(1, N):
-        if y_sorted[i] != y_sorted[i - 1]:
+        if y_sorted[i].item() != y_sorted[i - 1].item():
             threshold = ((values[i] + values[i - 1]) / 2).item()
 
             split_gain = compute_split_gain(X, y, feature_idx, threshold=threshold)
@@ -148,19 +148,23 @@ def find_best_split(
 
     return best_feature_idx, best_threshold, best_gain
 
+
 def get_majority_class(y: Tensor) -> int:
     """
     Get majority class in y.
-    
+
     Args:
         y (Tensor): Data containing the class labels.
-    
+
     Returns
         (int): Majority class label.
     """
     return int(y.mode().values.item())
 
-def bootstrap_sample(X: Tensor, y: Optional[Tensor] = None) -> Tuple[Tensor, Optional[Tensor]]:
+
+def bootstrap_sample(
+    X: Tensor, y: Optional[Tensor] = None
+) -> Tuple[Tensor, Optional[Tensor]]:
     """
     Return a bootstrap sample of X (and y if provided).
 

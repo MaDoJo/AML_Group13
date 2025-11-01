@@ -1,26 +1,29 @@
+import math
+
 import torch
-from torch import nn, Tensor
-from random_forest.utils import bootstrap_sample
-from random_forest import DecisionTree
+from torch import Tensor, nn
+
+from src.random_forest.decision_tree import DecisionTree
+from src.random_forest.utils import bootstrap_sample
+
 
 class RandomForest(nn.Module):
-    def __init__(self, n_trees: int, *args, **kwargs):
+    def __init__(self, n_trees: int, max_depth: int, *args, **kwargs):
         """
         Initialise the Random Forest.
 
         Args:
             n_trees (int): Number of trees to train in the forest.
+            max_depth (int): Max depth for the trees in the forest.
         """
         super().__init__(*args, **kwargs)
 
         self.n_trees = n_trees
 
         self.trees = nn.ModuleList(
-            [
-                DecisionTree() for _ in range(self.n_trees)
-            ]
+            [DecisionTree(max_depth=max_depth) for _ in range(self.n_trees)]
         )
-    
+
     def train_forest(self, X: Tensor, y: Tensor) -> None:
         """
         Train the Random Forest.
@@ -30,14 +33,13 @@ class RandomForest(nn.Module):
             y (Tensor): Label data.
         """
         # Use sqrt(d) for features to eval in each tree
-        n_features_eval = torch.sqrt(X.shape[1]).item()
+        n_features_eval = int(math.sqrt(X.shape[1]))
 
         for tree in self.trees:
             tree.n_features_eval = n_features_eval
             X_bag, y_bag = bootstrap_sample(X, y)
             tree.train_tree(X_bag, y_bag)
 
-    
     def forward(self, X: Tensor) -> Tensor:
         """
         Predict on data.
@@ -54,6 +56,6 @@ class RandomForest(nn.Module):
         ).T  # Transpose to have (samples, preds)
 
         # Majority vote
-        final_preds = torch.mode(all_preds, dim=1).values  
+        final_preds = torch.mode(all_preds, dim=1).values
 
         return final_preds

@@ -1,9 +1,11 @@
-from src.utils.loadData import TRAIN_DATA_POINTS, N_CLASSES
+import math
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from src.utils.config import N_CLASSES
 from src.utils.processing import get_pattern_mean
 
-import numpy as np
-import matplotlib.pyplot as plt
-import math
 
 def visualize_data_point(data_point: np.ndarray) -> None:
     """
@@ -32,13 +34,13 @@ def visualize_data_point(data_point: np.ndarray) -> None:
 
     # plot each of the time series in the 12 channels as a separate line
     for channel in range(n_dimensions):
-        plt.plot(x_axis, data_point[:last_row, channel], label=f'Channel {channel+1}')
+        plt.plot(x_axis, data_point[:last_row, channel], label=f"Channel {channel+1}")
 
     plt.xlim(0, max_rows)
-    plt.title('Time Series Plot of a Recording', fontsize=14)
-    plt.xlabel('Time Step', fontsize=12)
-    plt.legend(loc='upper right', ncol=4, fontsize='small')
-    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.title("Time Series Plot of a Recording", fontsize=14)
+    plt.xlabel("Time Step", fontsize=12)
+    plt.legend(loc="upper right", ncol=4, fontsize="small")
+    plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
 
 
@@ -65,12 +67,12 @@ def make_subplot(pattern_mean: np.ndarray, ax, data_class: int) -> None:
 
     # plot each of the time series in the 12 channels as a separate line
     for channel in range(n_dimensions):
-        ax.plot(x_axis, pattern_mean[:last_row, channel], label=f'Channel {channel+1}')
+        ax.plot(x_axis, pattern_mean[:last_row, channel], label=f"Channel {channel+1}")
 
     # plot the pattern mean on the given subplot axis
-    ax.set_title(f'Mean pattern of class {data_class}', fontsize=8)
-    ax.set_xlabel('Time Step', fontsize=6)
-    ax.grid(True, linestyle='--', alpha=0.6)
+    ax.set_title(f"Mean pattern of class {data_class}", fontsize=8)
+    ax.set_xlabel("Time Step", fontsize=6)
+    ax.grid(True, linestyle="--", alpha=0.6)
 
 
 def visualize_class_means(data: np.ndarray) -> None:
@@ -82,19 +84,11 @@ def visualize_class_means(data: np.ndarray) -> None:
         data (np.ndarray): All data points from the original training data.
     """
 
-    points_per_class = TRAIN_DATA_POINTS // N_CLASSES       # Should be 30
-
-    if data.shape[0] != TRAIN_DATA_POINTS:
-        print(f"Warning: Expected {TRAIN_DATA_POINTS} data points, but got \
-              {data.shape[0]}.")
+    points_per_class = data.shape[0] // N_CLASSES
 
     # create the figure and 3x3 subplots, with the same x and y-axes
     fig, axes = plt.subplots(
-        nrows=3,
-        ncols=3,
-        figsize=(10, 7),
-        sharex=True,
-        sharey=True
+        nrows=3, ncols=3, figsize=(10, 7), sharex=True, sharey=True
     )
 
     # flatten the 3x3 array of axes for easy iteration
@@ -118,7 +112,7 @@ def visualize_class_means(data: np.ndarray) -> None:
         # plot the pattern mean
         make_subplot(mean_pattern, current_ax, i + 1)
 
-    fig.suptitle('Mean Data Patterns for the 9 Classes', fontsize=10, y=1.02)
+    fig.suptitle("Mean Data Patterns for the 9 Classes", fontsize=10, y=1.02)
     plt.tight_layout()
     plt.show()
 
@@ -132,7 +126,7 @@ def visualize_data_lengths(data_lengths: np.ndarray) -> None:
 
     Args:
         data_lengths (np.ndarray): a list containing the frequencies of the
-        use of all time steps of a certain set of data points (e.g. the 
+        use of all time steps of a certain set of data points (e.g. the
         training data)
     """
 
@@ -140,23 +134,23 @@ def visualize_data_lengths(data_lengths: np.ndarray) -> None:
 
     plt.figure(figsize=(12, 6))
     plt.plot(x_axis, data_lengths)
-    plt.title('Number of Data Points at each Time Step', fontsize=14)
-    plt.xlabel('Time Step', fontsize=12)
-    plt.ylabel('Number of data points', fontsize=12)
-    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.title("Number of Data Points at each Time Step", fontsize=14)
+    plt.xlabel("Time Step", fontsize=12)
+    plt.ylabel("Number of data points", fontsize=12)
+    plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
 
 
-def visualize_PC_variance(singular_values: np.ndarray, log: bool=False) -> None:
+def visualize_PC_variance(singular_values: np.ndarray, log: bool = False) -> None:
     """
     Plots the Principal Component (PC) variances in descending order. On the
-    x-axis are the PCs in descending order from higest variance to lowest 
+    x-axis are the PCs in descending order from higest variance to lowest
     variance. On the y-axis is the (log) variance of each PC.
 
     Args:
         singular_values (np.ndarray): A list with the variances of the PCs in
         descending order
-        log (bool): determines if the raw PC variances will be plotted 
+        log (bool): determines if the raw PC variances will be plotted
         (log == False) or the log of the PC variances (log == True).
     """
 
@@ -173,31 +167,66 @@ def visualize_PC_variance(singular_values: np.ndarray, log: bool=False) -> None:
     plt.figure(figsize=(12, 6))
     plt.plot(x_axis, singular_values)
     plt.title(title, fontsize=14)
-    plt.xlabel('Features', fontsize=12)
+    plt.xlabel("Features", fontsize=12)
     plt.ylabel(y_label, fontsize=12)
-    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
 
 
-def show_search_results() -> None:
+def show_search_results(results: dict, file_name: str = "saved_figure.png") -> None:
     """
     Visualizes the results of the hyperparameter search. Plots the accuracies of
     1 through 10 nearest neighbors for two different local distance measures in
     the Dynamic Time Warping (DTW) procedure. The local distance measures are the
     absolute distance and the squared distance.
-    """
 
-    sqr_results = {1: 91.48148148148148, 2: 90.37037037037037, 3: 92.96296296296296, 4: 91.11111111111111, 5: 92.22222222222223, 6: 90.74074074074073, 7: 91.85185185185185, 8: 91.48148148148148, 9: 91.85185185185185, 10: 91.48148148148148}
-    abs_results = {1: 88.51851851851852, 2: 87.03703703703704, 3: 89.62962962962963, 4: 88.51851851851852, 5: 90.0, 6: 86.66666666666667, 7: 85.18518518518519, 8: 85.55555555555556, 9: 84.44444444444444, 10: 84.81481481481481}
+    Args:
+        results (dict): results of the knn hyperparameter search with the structure
+        {k_nn: accuracy}.
+        file_name (str): the name of the file to save the resulting plot to.
+    """
 
     plt.figure(figsize=(12, 6))
 
-    plt.plot(sqr_results.keys(), sqr_results.values(), label="d(x, y) = (x - y)^2")
-    plt.plot(abs_results.keys(), abs_results.values(), label="d(x, y) = abs(x - y)")
+    plt.plot(results.keys(), results.values())
 
-    plt.title('Hyperparameter Search Results', fontsize=14)
-    plt.ylabel('Validation Accuracy', fontsize=12)
-    plt.xlabel('K-Nearest Neighbors', fontsize=12)
-    plt.legend(loc='upper right', ncol=4, fontsize='small')
-    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.title("Hyperparameter Search Results", fontsize=14)
+    plt.ylabel("Validation Accuracy", fontsize=12)
+    plt.xlabel("K-Nearest Neighbors", fontsize=12)
+    plt.legend(loc="upper right", ncol=4, fontsize="small")
+    plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
+
+    plt.savefig(file_name)
+
+def plot_data_aug_comparison(original: np.ndarray, noise1: np.ndarray, noise2: np.ndarray, noise3: np.ndarray, file_name: str = "results/data_aug.png") -> None:
+    """
+    Plots a comparison of the original data point and its three augmented versions:
+    with noise, scaled, and time-warped. Each version is displayed in a separate subplot.
+
+    Args:
+        original (np.ndarray): The original data point.
+        noise (np.ndarray): The data point with added Gaussian noise.
+        scaled (np.ndarray): The data point after random scaling.
+        warped (np.ndarray): The time-warped version of the data point.
+    """
+    # Plotting all 4 versions side by side
+    plt.figure(figsize=(14, 8))
+
+    labels = ["Original", "Noise 1", "Noise 2", "Noise 3"]
+    samples = [original, noise1, noise2, noise3]
+
+    for i, sample in enumerate(samples):
+        plt.subplot(2, 2, i + 1)
+        last_row = np.nonzero(sample)[0][-1] + 1
+        x_axis = np.arange(last_row)
+        for channel in range(sample.shape[1]):
+            plt.plot(x_axis, sample[:last_row, channel])
+        plt.title(labels[i])
+        plt.xlabel("Time Step")
+        plt.ylabel("Cepstrum Value")
+        plt.grid(True, linestyle="--", alpha=0.5)
+
+    plt.tight_layout()
+    plt.savefig(file_name)
+    plt.show()

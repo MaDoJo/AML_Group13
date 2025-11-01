@@ -1,7 +1,8 @@
-from src.utils.processing import flatten_data
+from typing import Tuple
 
 import numpy as np
-from typing import Tuple
+
+from src.utils.processing import flatten_data
 
 
 def normalize(data: np.ndarray, pattern_mean: np.ndarray) -> np.ndarray:
@@ -9,7 +10,7 @@ def normalize(data: np.ndarray, pattern_mean: np.ndarray) -> np.ndarray:
     Normalizes the data by subtracting the pattern mean from each data point.
 
     Args:
-        data (np.ndarray): array of data points. Each data point is a time 
+        data (np.ndarray): array of data points. Each data point is a time
         series with 12 channels of cepstrum coefficients.
         pattern_mean (np.ndarray): the pattern mean to substract from every
         data point.
@@ -27,7 +28,9 @@ def normalize(data: np.ndarray, pattern_mean: np.ndarray) -> np.ndarray:
 
             # only subtract the mean for non-padded time steps
             if np.count_nonzero(data_point[time_step]) > 0:
-                normalized_data[idx, time_step] = data_point[time_step] - pattern_mean[time_step]
+                normalized_data[idx, time_step] = (
+                    data_point[time_step] - pattern_mean[time_step]
+                )
 
     return normalized_data
 
@@ -38,11 +41,11 @@ def SVD(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     by first obtaining the covariance matrix (C = 1/N X'X).
 
     Args:
-        data (np.ndarray): array of normalized data points. Each data point is 
+        data (np.ndarray): array of normalized data points. Each data point is
         a time series with 12 channels of cepstrum coefficients.
 
     Returns:
-        Tuple[np.ndarray, np.ndarray]: an array of principal component vectors 
+        Tuple[np.ndarray, np.ndarray]: an array of principal component vectors
         (U) and an array of principal component variances (Σ).
     """
 
@@ -55,36 +58,41 @@ def SVD(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
 def determine_cutoff(variance_vector: np.ndarray, wanted_variance: float) -> int:
     """
-    Determines the number of Principal Components (PCs) needed, given a desired 
+    Determines the number of Principal Components (PCs) needed, given a desired
     percentage of variance wanted to preserve.
 
     Args:
-        variance_vector (np.ndarray): PC variance vector (variances are in 
+        variance_vector (np.ndarray): PC variance vector (variances are in
         descending order).
-        wanted_variance (float): the percentage of desired variance to be 
+        wanted_variance (float): the percentage of desired variance to be
         preserved.
 
     Returns:
-        int: number of PCs to be kept to preserve wanted_variance percent of 
+        int: number of PCs to be kept to preserve wanted_variance percent of
         variance.
     """
 
     if wanted_variance < 0 or wanted_variance > 100:
-        print(f"expected wanted_variance to be a percentage between 0-100, \
-              instead got {wanted_variance}.")
+        print(
+            f"expected wanted_variance to be a percentage between 0-100, \
+              instead got {wanted_variance}."
+        )
         return
 
     cutoff = 1
-    while (sum(variance_vector[:cutoff]) / sum(variance_vector)) * 100 < wanted_variance:
+    while (
+        sum(variance_vector[:cutoff]) / sum(variance_vector)
+    ) * 100 < wanted_variance:
         cutoff += 1
 
     return cutoff
 
 
 def reduce_PCs(
-        feature_variances: np.ndarray, 
-        principal_components: np.ndarray, 
-        wanted_variance: float) -> np.ndarray:
+    feature_variances: np.ndarray,
+    principal_components: np.ndarray,
+    wanted_variance: float,
+) -> np.ndarray:
     """
     Reduces the array of principal components (PCs) to the number of principal
     components that perserve the wanted variance.
@@ -111,12 +119,12 @@ def get_feature_vectors(data: np.ndarray, PCs_reduced: np.ndarray) -> np.ndarray
     selected Principal Components (PCs).
 
     Args:
-        data (np.ndarray): array of normalized data points. Each data point is 
+        data (np.ndarray): array of normalized data points. Each data point is
         a time series with 12 channels of cepstrum coefficients.
         PCs_reduced (np.ndarray): array of the selected PCs.
 
     Returns:
-        np.ndarray: array of the resulting feature fectors, obtained from the 
+        np.ndarray: array of the resulting feature fectors, obtained from the
         projection of the normalized data onto the PCs.
     """
 
